@@ -126,7 +126,12 @@ function handleLevelSelect(level) {
     gameState.value = 'welcome'
     return
   }
+  // level 现在是游戏类型ID
   gameStore.currentLevel = level
+  // 如果没有设置子关卡，默认使用第一关
+  if (!gameStore.currentSubLevel) {
+    gameStore.setSubLevel(1)
+  }
   gameState.value = 'playing'
   gameStore.startGame()
 }
@@ -140,10 +145,17 @@ function handleGameOverAction(action) {
   if (action === 'restart') {
     handleRestart()
   } else if (action === 'next-level') {
-    const nextLevel = Math.min(gameStore.currentLevel + 1, 3)
-    gameStore.currentLevel = nextLevel
-    gameState.value = 'playing'
-    gameStore.startGame()
+    // 下一子关卡
+    const nextSubLevel = gameStore.currentSubLevel + 1
+    // 检查是否有下一关（最多6关）
+    if (nextSubLevel <= 6) {
+      gameStore.setSubLevel(nextSubLevel)
+      gameState.value = 'playing'
+      gameStore.startGame()
+    } else {
+      // 没有下一关，返回关卡选择
+      gameState.value = 'level-select'
+    }
   } else if (action === 'level-select') {
     gameState.value = 'level-select'
   } else if (action === 'home') {

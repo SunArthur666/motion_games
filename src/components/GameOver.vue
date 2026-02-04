@@ -123,8 +123,22 @@ const displayScore = computed(() => {
 })
 
 const canNextLevel = computed(() => {
+  // 如果有subLevel，检查是否有下一关
+  if (props.result.subLevel !== undefined) {
+    // 这里可以添加检查下一关是否解锁的逻辑
+    return isSuccess.value && props.result.subLevel < 6
+  }
   return isSuccess.value && props.result.level < 3
 })
+
+function getStarsText(stars) {
+  const texts = {
+    3: '完美通关！',
+    2: '表现优秀！',
+    1: '继续努力！'
+  }
+  return texts[stars] || '完成关卡！'
+}
 
 function formatTime(seconds) {
   if (!seconds) return '0:00'
@@ -317,6 +331,65 @@ function goHome() {
 }
 
 .stats p {
+  margin: 0;
+}
+
+.stars-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 15px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.stars-title {
+  color: #ffd700;
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.stars-display-large {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.star-large {
+  font-size: 48px;
+  opacity: 0.3;
+  transition: all 0.5s;
+  filter: grayscale(100%);
+}
+
+.star-large.filled {
+  opacity: 1;
+  filter: grayscale(0%);
+  transform: scale(1.2);
+}
+
+.star-large.animate {
+  animation: starPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes starPop {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3) rotate(180deg);
+  }
+  100% {
+    transform: scale(1.2) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+.stars-text {
+  color: #ffd700;
+  font-size: 18px;
+  font-weight: bold;
   margin: 0;
 }
 </style>

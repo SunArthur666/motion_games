@@ -23,7 +23,7 @@
 
         <div class="level-display">
           <span class="label">关卡</span>
-          <span class="value">{{ levelNames[gameStore.currentLevel - 1] }}</span>
+          <span class="value">{{ levelName }}</span>
         </div>
 
         <div class="lives-display">
@@ -111,11 +111,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { usePoseDetection } from '@/composables/usePoseDetection'
 import { useParticles } from '@/composables/useParticles'
 import { useGameStore } from '@/stores/game'
 import { trackEvent } from '@/utils/analytics'
+import { getLevelConfig } from '@/config/levelConfig'
 import ColorBattleLevel from '@/levels/ColorBattleLevel.vue'
 import ObstacleDodgeLevel from '@/levels/ObstacleDodgeLevel.vue'
 import PoseMimicryLevel from '@/levels/PoseMimicryLevel.vue'
@@ -140,8 +141,13 @@ const frameCount = ref(0)
 let lastFpsUpdate = performance.now()
 let frameTimes = []
 
-// 关卡名称
-const levelNames = ['色彩大作战', '障碍躲避', '姿势临摹']
+// 关卡名称（从配置中获取）
+import { getLevelConfig } from '@/config/levelConfig'
+
+const levelName = computed(() => {
+  const config = getLevelConfig(gameStore.currentLevel, gameStore.currentSubLevel)
+  return config?.name || '关卡'
+})
 
 // 粒子系统
 const {
