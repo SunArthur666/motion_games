@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { getLevelConfig, calculateStars, getAllLevels } from '@/config/levelConfig'
+import { 
+  getLevelConfig, 
+  calculateStars, 
+  getAllLevels,
+  USER_DIFFICULTY_MODES,
+  applyDifficultyAdjustments,
+  ENCOURAGEMENT_CONFIG,
+  POWER_UPS
+} from '@/config/levelConfig'
 
 export const useGameStore = defineStore('game', () => {
   // 游戏状态
@@ -10,6 +18,29 @@ export const useGameStore = defineStore('game', () => {
   const lives = ref(3)
   const isPlaying = ref(false)
   const isPaused = ref(false)
+  
+  // 用户难度选择
+  const userDifficulty = ref('normal')  // 'easy' | 'normal' | 'hard'
+  const userDifficultyConfig = computed(() => {
+    return USER_DIFFICULTY_MODES[userDifficulty.value] || USER_DIFFICULTY_MODES.normal
+  })
+
+  // 连击计数
+  const streak = ref(0)
+  const maxStreak = ref(0)
+
+  // 道具状态
+  const activePowerUps = ref([])
+  const collectedPowerUps = ref([])
+
+  // 成就和统计
+  const statistics = ref({
+    totalGamesPlayed: 0,
+    totalCorrect: 0,
+    totalWrong: 0,
+    bestStreak: 0,
+    totalPlayTime: 0
+  })
   
   // 关卡进度和星级
   const levelProgress = ref({})    // { 'color-1': { stars: 2, unlocked: true }, ... }
@@ -148,14 +179,112 @@ export const useGameStore = defineStore('game', () => {
     sessionStartTime.value = Date.now()
     lastBreakTime.value = Date.now()
     score.value = 0
+    streak.value = 0
+    activePowerUps.value = []
     
-    // 根据关卡配置设置生命值
-    const levelConfig = getLevelConfig(currentLevel.value, currentSubLevel.value)
-    if (levelConfig && levelConfig.config) {
-      lives.value = levelConfig.config.lives || 3
+    const adjustedConfig = getAdjustedLevelConfig()
+    if (adjustedConfig && adjustedConfig.config) {
+      lives.value = adjustedConfig.config.lives || 3
     } else {
       lives.value = 3
     }
+
+    statistics.value.totalGamesPlayed++
+    saveStatistics()
+  }
+
+  function getAdjustedLevelConfig() {
+    const levelConfig = getLevelConfig(currentLevel.value, currentSubLevel.value)
+    if (!levelConfig) return null
+    return applyDifficultyAdjustments(levelConfig, userDifficulty.value)
+  }
+
+  function setUserDifficulty(difficulty) {
+    if (USER_DIFFICULTY_MODES[difficulty]) {
+      userDifficulty.value = difficulty
+      saveSettings()
+    }
+  }
+
+  function addStreak() {
+    streak.value++
+    if (streak.value > maxStreak.value) maxStreak.value = streak.value
+    if (streak.value > statistics.value.bestStreak) {
+      statistics.value.bestStreak = streak.value
+      saveStatistics()
+    }
+  }
+
+  function resetStreak() {
+    streak.value = 0
+  }
+
+  function getEncouragement(type, param = null) {
+    const config = ENCOURAGEMENT_CONFIG[type]
+    if (!config) return ''
+    
+    if (type === 'streak' && param) {
+      const streakConfig = config[param] || config[Object.keys(config).find(k => parseInt(k) <= param)]
+      if (streakConfig) return streakConfig[Math.floor(Math.random() * streakConfig.length)]
+    } else if (type === 'complete' && param) {
+      const completeConfig = config[param]
+      if (completeConfig) return completeConfig[Math.floor(Math.random() * completeConfig.length)]
+    } else if (Array.isArray(config)) {
+      return config[Math.floor(Math.random() * config.length)]
+    }
+    return ''
+  }
+
+  function addPowerUp(powerUpId) {
+    const powerUp = POWER_UPS[powerUpId]
+    if (!powerUp) return
+    if (powerUp.effect.addLife) {
+      lives.value += powerUp.effect.addLife
+    } else {
+      activePowerUps.value.push({ ...powerUp, startTime: Date.now(), endTime: Date.now() + powerUp.duration })
+    }
+    collectedPowerUps.value.push(powerUpId)
+  }
+
+  function isPowerUpActive(powerUpId) {
+    return activePowerUps.value.some(p => p.id === powerUpId && p.endTime > Date.now())
+  }
+
+  function updatePowerUps() {
+    activePowerUps.value = activePowerUps.value.filter(p => p.endTime > Date.now())
+  }
+
+  function saveStatistics() {
+    try { localStorage.setItem('motion-games-statistics', JSON.stringify(statistics.value)) } catch (e) {}
+  }
+
+  function loadStatistics() {
+    try {
+      const saved = localStorage.getItem('motion-games-statistics')
+      if (saved) statistics.value = { ...statistics.value, ...JSON.parse(saved) }
+    } catch (e) {}
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem('motion-games-settings', JSON.stringify({
+        userDifficulty: userDifficulty.value,
+        isMirrored: isMirrored.value,
+        performanceMode: performanceMode.value
+      }))
+    } catch (e) {}
+  }
+
+  function loadSettings() {
+    try {
+      const saved = localStorage.getItem('motion-games-settings')
+      if (saved) {
+        const settings = JSON.parse(saved)
+        if (settings.userDifficulty) userDifficulty.value = settings.userDifficulty
+        if (settings.isMirrored !== undefined) isMirrored.value = settings.isMirrored
+        if (settings.performanceMode) performanceMode.value = settings.performanceMode
+      }
+    } catch (e) {}
   }
 
   function pauseGame() {
@@ -174,14 +303,28 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function addScore(points) {
-    score.value += points
+    let multiplier = isPowerUpActive('doublePoints') ? 2 : 1
+    score.value += Math.floor(points * multiplier)
+    statistics.value.totalCorrect++
   }
 
   function loseLife() {
+    if (isPowerUpActive('shield')) {
+      activePowerUps.value = activePowerUps.value.filter(p => p.id !== 'shield')
+      return false
+    }
+    if (userDifficultyConfig.value.adjustments.forgivingMode) {
+      resetStreak()
+      return false
+    }
     lives.value--
+    resetStreak()
+    statistics.value.totalWrong++
     if (lives.value <= 0) {
       endGame()
+      return true
     }
+    return false
   }
 
   function nextLevel() {
@@ -214,49 +357,27 @@ export const useGameStore = defineStore('game', () => {
     customColors.value[key] = value
   }
 
-  // 初始化加载进度
+  // 初始化加载
   loadProgress()
+  loadStatistics()
+  loadSettings()
 
   return {
     // State
-    currentLevel,
-    currentSubLevel,
-    score,
-    lives,
-    isPlaying,
-    isPaused,
-    sessionStartTime,
-    totalPlayTime,
-    lastBreakTime,
-    isMirrored,
-    performanceMode,
-    targetFPS,
-    renderFPS,
-    customColors,
-    safetyZone,
-    levelProgress,
+    currentLevel, currentSubLevel, score, lives, isPlaying, isPaused,
+    sessionStartTime, totalPlayTime, lastBreakTime, isMirrored,
+    performanceMode, targetFPS, renderFPS, customColors, safetyZone, levelProgress,
+    userDifficulty, streak, maxStreak, activePowerUps, collectedPowerUps, statistics,
     // Computed
-    shouldTakeBreak,
-    totalStars,
+    shouldTakeBreak, totalStars, userDifficultyConfig,
     // Actions
-    startGame,
-    pauseGame,
-    resumeGame,
-    endGame,
-    addScore,
-    loseLife,
-    nextLevel,
-    setSubLevel,
-    takeBreak,
-    updateSafetyZone,
-    toggleMirror,
-    setPerformanceMode,
-    updateCustomColor,
+    startGame, pauseGame, resumeGame, endGame, addScore, loseLife,
+    nextLevel, setSubLevel, takeBreak, updateSafetyZone, toggleMirror,
+    setPerformanceMode, updateCustomColor,
     // Level progress
-    loadProgress,
-    saveProgress,
-    isLevelUnlocked,
-    completeLevel,
-    getLevelProgress
+    loadProgress, saveProgress, isLevelUnlocked, completeLevel, getLevelProgress,
+    // New features
+    setUserDifficulty, getAdjustedLevelConfig, addStreak, resetStreak,
+    getEncouragement, addPowerUp, isPowerUpActive, updatePowerUps, saveSettings, loadSettings
   }
 })

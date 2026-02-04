@@ -87,6 +87,8 @@
       @collision="handleCollision"
       @prompt="handlePrompt"
       @level-complete="handleLevelComplete"
+      @encouragement="handleEncouragement"
+      @powerup="handlePowerUp"
     />
 
     <ObstacleDodgeLevel
@@ -107,6 +109,31 @@
 
     <!-- 粒子画布 -->
     <canvas ref="particleCanvas" class="particle-canvas"></canvas>
+
+    <!-- 连击显示 -->
+    <transition name="streak">
+      <div v-if="gameStore.streak >= 3" class="streak-display">
+        <span class="streak-icon">🔥</span>
+        <span class="streak-count">{{ gameStore.streak }}</span>
+        <span class="streak-text">连击!</span>
+      </div>
+    </transition>
+
+    <!-- 鼓励反馈 -->
+    <EncouragementToast
+      ref="encouragementToast"
+      :message="encouragementMessage"
+      :type="encouragementType"
+      :streak="gameStore.streak"
+    />
+
+    <!-- 道具显示 -->
+    <PowerUpDisplay />
+
+    <!-- 难度提示（轻松模式时显示） -->
+    <div v-if="gameStore.userDifficulty === 'easy'" class="easy-mode-hint">
+      <span>🌟 轻松模式</span>
+    </div>
   </div>
 </template>
 
@@ -118,6 +145,8 @@ import { useGameStore } from '@/stores/game'
 import { trackEvent } from '@/utils/analytics'
 import { getLevelConfig } from '@/config/levelConfig'
 import ColorBattleLevel from '@/levels/ColorBattleLevel.vue'
+import EncouragementToast from '@/components/EncouragementToast.vue'
+import PowerUpDisplay from '@/components/PowerUpDisplay.vue'
 import ObstacleDodgeLevel from '@/levels/ObstacleDodgeLevel.vue'
 import PoseMimicryLevel from '@/levels/PoseMimicryLevel.vue'
 
@@ -141,9 +170,12 @@ const frameCount = ref(0)
 let lastFpsUpdate = performance.now()
 let frameTimes = []
 
-// 关卡名称（从配置中获取）
-import { getLevelConfig } from '@/config/levelConfig'
+// 鼓励反馈
+const encouragementToast = ref(null)
+const encouragementMessage = ref('')
+const encouragementType = ref('correct')
 
+// 关卡名称（从配置中获取）
 const levelName = computed(() => {
   const config = getLevelConfig(gameStore.currentLevel, gameStore.currentSubLevel)
   return config?.name || '关卡'
@@ -296,6 +328,30 @@ function handleCollision(event) {
 // 处理提示更新（关卡一）
 function handlePrompt(prompt) {
   currentPrompt.value = prompt
+}
+
+// 处理鼓励反馈
+function handleEncouragement(event) {
+  const { type, message, streak } = event
+  encouragementMessage.value = message
+  encouragementType.value = type
+  
+  if (encouragementToast.value) {
+    encouragementToast.value.show()
+  }
+}
+
+// 处理道具事件
+function handlePowerUp(event) {
+  const { type, powerUp } = event
+  
+  if (type === 'collect') {
+    // 道具收集特效
+    createCoinCollect(
+      canvasWidth.value / 2,
+      canvasHeight.value / 2
+    )
+  }
 }
 
 // 游戏结束
@@ -621,5 +677,89 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 连击显示 */
+.streak-display {
+  position: fixed;
+  top: 150px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 25px;
+  background: linear-gradient(135deg, rgba(255, 165, 0, 0.9), rgba(255, 100, 0, 0.9));
+  border-radius: 20px;
+  color: #fff;
+  z-index: 1500;
+  box-shadow: 0 5px 20px rgba(255, 165, 0, 0.5);
+}
+
+.streak-icon {
+  font-size: 32px;
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+.streak-count {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.streak-text {
+  font-size: 18px;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.2); }
+}
+
+.streak-enter-active {
+  animation: streakIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.streak-leave-active {
+  animation: streakOut 0.3s ease-in;
+}
+
+@keyframes streakIn {
+  from {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes streakOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+}
+
+/* 轻松模式提示 */
+.easy-mode-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  background: rgba(74, 222, 128, 0.8);
+  border-radius: 15px;
+  color: #fff;
+  font-size: 14px;
+  z-index: 1000;
+}
+
+.easy-mode-hint span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 </style>

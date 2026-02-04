@@ -9,7 +9,7 @@ import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useCollisionDetection } from '@/composables/useCollisionDetection'
 import { useSpeech } from '@/composables/useSpeech'
 import { useGameStore } from '@/stores/game'
-import { getLevelConfig } from '@/config/levelConfig'
+import { getLevelConfig, applyDifficultyAdjustments, POWER_UPS } from '@/config/levelConfig'
 
 const props = defineProps({
   landmarks: {
@@ -28,13 +28,15 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['collision', 'prompt', 'level-complete'])
+const emit = defineEmits(['collision', 'prompt', 'level-complete', 'encouragement', 'powerup'])
 
 const gameStore = useGameStore()
 
-// 获取关卡配置
+// 获取关卡配置（应用用户难度调整）
 const levelConfig = computed(() => {
-  return getLevelConfig(props.gameType, props.subLevel)
+  const baseConfig = getLevelConfig(props.gameType, props.subLevel)
+  if (!baseConfig) return null
+  return applyDifficultyAdjustments(baseConfig, gameStore.userDifficulty)
 })
 
 // 游戏配置（从关卡配置中读取）
@@ -48,9 +50,15 @@ const gameConfig = computed(() => {
     timeLimit: null,
     frenzyThreshold: 5,
     lives: 3,
-    scoreMultiplier: 1.0
+    scoreMultiplier: 1.0,
+    hintEnabled: false,
+    forgivingMode: false
   }
 })
+
+// 道具生成控制
+const powerUpSpawnChance = 0.05
+const powerUps = ref([])
 
 const levelCanvas = ref(null)
 const { checkCollisions } = useCollisionDetection()
@@ -226,6 +234,9 @@ function update(currentTime = performance.now()) {
   if (isFrenzyMode.value) {
     updateCoins(ctx)
   }
+
+  // 更新和绘制道具
+  updatePowerUps(ctx)
 
   // 检测碰撞（优化：降低检测频率）
   if (props.landmarks && props.landmarks.length > 0) {
@@ -422,10 +433,12 @@ function checkGameCollisions() {
           } else {
             streak.value++
             correctCount.value++
+            gameStore.addStreak()
             
-            // 计算分数（应用关卡倍数）
+            // 计算分数（应用关卡倍数和道具加成）
             const basePoints = 100
-            const points = Math.floor(basePoints * gameConfig.value.scoreMultiplier)
+            let points = Math.floor(basePoints * gameConfig.value.scoreMultiplier)
+            if (gameStore.isPowerUpActive('doublePoints')) points *= 2
             
             emit('collision', {
               type: 'balloon-pop',
@@ -437,6 +450,14 @@ function checkGameCollisions() {
               }
             })
             playSound('correct')
+
+            // 发送鼓励反馈
+            sendEncouragement('correct', streak.value)
+
+            // 随机生成道具
+            if (Math.random() < powerUpSpawnChance * (1 + streak.value * 0.1)) {
+              spawnPowerUp(balloon.x, balloon.y)
+            }
 
             // 检查是否完成关卡
             if (correctCount.value >= targetCount.value) {
@@ -455,13 +476,8 @@ function checkGameCollisions() {
           }
         } else {
           // 错误！
-          streak.value = 0
-          wrongCount.value++
-          emit('collision', {
-            type: 'wrong-color',
-            data: { color: balloon.color }
-          })
-          playSound('wrong')
+          const isDead = handleWrongAnswer(balloon)
+          if (isDead) return
         }
       } catch (e) {
         console.warn('Error processing collision:', e)
@@ -599,8 +615,126 @@ function startFrenzyMode() {
 function endFrenzyMode() {
   isFrenzyMode.value = false
   streak.value = 0
+  gameStore.resetStreak()
   coins.value = []
   selectNewTargetColor()
+}
+
+// 处理错误答案
+function handleWrongAnswer(balloon) {
+  streak.value = 0
+  wrongCount.value++
+  const isDead = gameStore.loseLife()
+  
+  if (gameConfig.value.forgivingMode) {
+    emit('collision', { type: 'wrong-color-forgive', data: { color: balloon.color } })
+  } else {
+    emit('collision', { type: 'wrong-color', data: { color: balloon.color } })
+  }
+  
+  playSound('wrong')
+  sendEncouragement('wrong')
+  return isDead
+}
+
+// 发送鼓励反馈
+function sendEncouragement(type, streakValue = 0) {
+  const message = gameStore.getEncouragement(type, streakValue)
+  if (message) {
+    emit('encouragement', { type, message, streak: streakValue })
+  }
+  
+  if (type === 'correct' && streakValue > 0 && streakValue % 3 === 0) {
+    const streakMessage = gameStore.getEncouragement('streak', streakValue)
+    if (streakMessage) {
+      setTimeout(() => {
+        emit('encouragement', { type: 'streak', message: streakMessage, streak: streakValue })
+      }, 300)
+    }
+  }
+}
+
+// 生成道具
+function spawnPowerUp(x, y) {
+  const powerUpTypes = Object.keys(POWER_UPS)
+  const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)]
+  const powerUp = POWER_UPS[randomType]
+  
+  powerUps.value.push({
+    id: Date.now() + Math.random(),
+    type: randomType,
+    x,
+    y: y - 50,
+    ...powerUp,
+    speed: 1.5,
+    collected: false
+  })
+  
+  emit('powerup', { type: 'spawn', powerUp: randomType })
+}
+
+// 更新和绘制道具
+function updatePowerUps(ctx) {
+  const alivePowerUps = []
+  
+  for (const powerUp of powerUps.value) {
+    powerUp.y += powerUp.speed
+    if (powerUp.y > props.canvasHeight + 50) continue
+    
+    drawPowerUp(ctx, powerUp)
+    
+    if (props.landmarks && !powerUp.collected) {
+      const collected = checkPowerUpCollision(powerUp)
+      if (collected) {
+        powerUp.collected = true
+        gameStore.addPowerUp(powerUp.type)
+        playSound('collect')
+        emit('powerup', { type: 'collect', powerUp: powerUp.type })
+        continue
+      }
+    }
+    
+    alivePowerUps.push(powerUp)
+  }
+  
+  powerUps.value = alivePowerUps
+}
+
+// 绘制道具
+function drawPowerUp(ctx, powerUp) {
+  ctx.save()
+  ctx.translate(powerUp.x, powerUp.y)
+  ctx.shadowColor = '#00ffff'
+  ctx.shadowBlur = 20
+  ctx.beginPath()
+  ctx.arc(0, 0, 30, 0, Math.PI * 2)
+  ctx.fillStyle = 'rgba(0, 255, 255, 0.3)'
+  ctx.fill()
+  ctx.strokeStyle = '#00ffff'
+  ctx.lineWidth = 3
+  ctx.stroke()
+  ctx.font = '30px Arial'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillStyle = '#fff'
+  ctx.fillText(powerUp.icon, 0, 0)
+  ctx.restore()
+}
+
+// 检测道具碰撞
+function checkPowerUpCollision(powerUp) {
+  if (!props.landmarks || props.landmarks.length < 17) return false
+  const wrists = [props.landmarks[15], props.landmarks[16]]
+  
+  for (const wrist of wrists) {
+    if (!wrist || wrist.visibility < 0.3) continue
+    const wristX = wrist.x * props.canvasWidth
+    const wristY = wrist.y * props.canvasHeight
+    const dx = powerUp.x - wristX
+    const dy = powerUp.y - wristY
+    if (Math.sqrt(dx * dx + dy * dy) < 50) return true
+  }
+  return false
 }
 
 // 颜色处理工具

@@ -3,7 +3,7 @@
  * 参考优秀益智游戏设计：渐进式难度、明确目标、奖励机制
  */
 
-// 关卡难度配置
+// 关卡难度配置（用于标记关卡本身的难度）
 export const DIFFICULTY_CONFIG = {
   easy: {
     name: '简单',
@@ -25,6 +25,117 @@ export const DIFFICULTY_CONFIG = {
     color: '#a855f7',
     multiplier: 3.0
   }
+}
+
+/**
+ * 用户难度选择配置
+ * 用于调整整体游戏难度，防止小朋友产生挫败感
+ */
+export const USER_DIFFICULTY_MODES = {
+  easy: {
+    id: 'easy',
+    name: '轻松模式',
+    icon: '🌟',
+    description: '适合初学者，更多生命，更慢速度',
+    color: '#4ade80',
+    adjustments: {
+      speedMultiplier: 0.6,
+      livesBonus: 3,
+      spawnIntervalMultiplier: 1.5,
+      targetReduction: 0.7,
+      matchThresholdReduction: 0.1,
+      scoreMultiplier: 0.8,
+      hintEnabled: true,
+      forgivingMode: true
+    }
+  },
+  normal: {
+    id: 'normal',
+    name: '普通模式',
+    icon: '⭐',
+    description: '标准难度，平衡的游戏体验',
+    color: '#ffd93d',
+    adjustments: {
+      speedMultiplier: 1.0,
+      livesBonus: 0,
+      spawnIntervalMultiplier: 1.0,
+      targetReduction: 1.0,
+      matchThresholdReduction: 0,
+      scoreMultiplier: 1.0,
+      hintEnabled: false,
+      forgivingMode: false
+    }
+  },
+  hard: {
+    id: 'hard',
+    name: '挑战模式',
+    icon: '🔥',
+    description: '高手专属，更快速度，更高要求',
+    color: '#ef4444',
+    adjustments: {
+      speedMultiplier: 1.3,
+      livesBonus: -1,
+      spawnIntervalMultiplier: 0.8,
+      targetReduction: 1.2,
+      matchThresholdReduction: -0.05,
+      scoreMultiplier: 1.5,
+      hintEnabled: false,
+      forgivingMode: false
+    }
+  }
+}
+
+/**
+ * 根据用户选择的难度调整关卡配置
+ */
+export function applyDifficultyAdjustments(levelConfig, userDifficulty) {
+  const mode = USER_DIFFICULTY_MODES[userDifficulty] || USER_DIFFICULTY_MODES.normal
+  const adj = mode.adjustments
+  const config = { ...levelConfig.config }
+
+  if (config.balloonSpeed) config.balloonSpeed *= adj.speedMultiplier
+  if (config.obstacleSpeed) config.obstacleSpeed *= adj.speedMultiplier
+  if (config.lives) config.lives = Math.max(1, config.lives + adj.livesBonus)
+  if (config.spawnInterval) config.spawnInterval *= adj.spawnIntervalMultiplier
+  if (config.targetCount) config.targetCount = Math.max(3, Math.floor(config.targetCount * adj.targetReduction))
+  if (config.matchThreshold) config.matchThreshold = Math.max(0.5, config.matchThreshold - adj.matchThresholdReduction)
+
+  config.scoreMultiplier = (config.scoreMultiplier || 1) * adj.scoreMultiplier
+  config.hintEnabled = adj.hintEnabled
+  config.forgivingMode = adj.forgivingMode
+
+  return { ...levelConfig, config, userDifficulty }
+}
+
+/**
+ * 鼓励语配置
+ */
+export const ENCOURAGEMENT_CONFIG = {
+  correct: ['太棒了！', '做得好！', '真厉害！', '继续加油！', '完美！', '你真聪明！', '好极了！', '真不错！'],
+  streak: {
+    3: ['连续3个！太棒了！', '三连击！', '厉害！'],
+    5: ['连续5个！你是高手！', '五连击！超级！', '哇！'],
+    10: ['10连击！无敌了！', '太强了！', '天才！']
+  },
+  wrong: ['没关系，再试一次！', '加油，你可以的！', '差一点点，继续！', '别灰心！', '慢慢来，不着急！'],
+  loseLife: ['别担心，还有机会！', '加油，你能做到！', '慢慢来，别着急！'],
+  gameOver: ['你已经很棒了！', '下次会更好的！', '每次都在进步！'],
+  complete: {
+    1: ['完成了！继续努力！', '通关了！'],
+    2: ['太棒了！两颗星！', '优秀！'],
+    3: ['完美！三颗星！', '你是最棒的！', '天才！']
+  }
+}
+
+/**
+ * 趣味道具配置
+ */
+export const POWER_UPS = {
+  slowTime: { id: 'slowTime', name: '时间减速', icon: '⏱️', description: '减慢所有物体速度5秒', duration: 5000, effect: { speedMultiplier: 0.5 } },
+  shield: { id: 'shield', name: '保护罩', icon: '🛡️', description: '免疫一次错误', duration: 10000, effect: { invincible: true } },
+  magnet: { id: 'magnet', name: '磁铁', icon: '🧲', description: '自动吸引正确的目标', duration: 5000, effect: { autoAttract: true } },
+  doublePoints: { id: 'doublePoints', name: '双倍积分', icon: '✨', description: '得分翻倍10秒', duration: 10000, effect: { scoreMultiplier: 2 } },
+  extraLife: { id: 'extraLife', name: '额外生命', icon: '❤️', description: '获得一条额外生命', duration: 0, effect: { addLife: 1 } }
 }
 
 /**

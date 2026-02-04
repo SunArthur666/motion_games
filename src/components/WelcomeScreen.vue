@@ -50,6 +50,25 @@
         <p>💡 每15分钟会自动提醒休息</p>
       </div>
 
+      <!-- 难度选择 -->
+      <div class="difficulty-selector">
+        <span class="difficulty-label">游戏难度：</span>
+        <div class="difficulty-options">
+          <button
+            v-for="mode in difficultyModes"
+            :key="mode.id"
+            class="difficulty-btn"
+            :class="{ active: gameStore.userDifficulty === mode.id }"
+            :style="{ '--color': mode.color }"
+            @click="selectDifficulty(mode.id)"
+          >
+            <span class="mode-icon">{{ mode.icon }}</span>
+            <span class="mode-name">{{ mode.name }}</span>
+          </button>
+        </div>
+        <p class="difficulty-desc">{{ currentDifficultyDesc }}</p>
+      </div>
+
       <!-- 开始按钮 -->
       <button @click="handleStart" class="start-btn">
         <span>开始游戏</span>
@@ -103,14 +122,21 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useGameStore } from '@/stores/game'
+import { USER_DIFFICULTY_MODES } from '@/config/levelConfig'
 
 const emit = defineEmits(['start', 'mouseMode'])
 
 const gameStore = useGameStore()
 const showQuickSettings = ref(false)
 const performanceMode = ref(gameStore.performanceMode)
+
+const difficultyModes = Object.values(USER_DIFFICULTY_MODES)
+const currentDifficultyDesc = computed(() => {
+  const mode = USER_DIFFICULTY_MODES[gameStore.userDifficulty]
+  return mode ? mode.description : ''
+})
 
 function handleStart() {
   emit('start')
@@ -123,6 +149,11 @@ function handleMouseMode() {
 function toggleMirror() {
   gameStore.toggleMirror()
 }
+
+function selectDifficulty(id) {
+  gameStore.setUserDifficulty(id)
+}
+
 watch(performanceMode, (mode) => {
   gameStore.setPerformanceMode(mode)
 })
@@ -407,5 +438,68 @@ watch(performanceMode, (mode) => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+/* 难度选择 */
+.difficulty-selector {
+  margin-bottom: 30px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+}
+
+.difficulty-label {
+  color: #fff;
+  font-size: 18px;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.difficulty-options {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.difficulty-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 15px 25px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 3px solid transparent;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-width: 100px;
+}
+
+.difficulty-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-3px);
+}
+
+.difficulty-btn.active {
+  border-color: var(--color);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px var(--color);
+}
+
+.mode-icon {
+  font-size: 32px;
+}
+
+.mode-name {
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.difficulty-desc {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin: 0;
 }
 </style>
