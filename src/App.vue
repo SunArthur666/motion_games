@@ -66,6 +66,11 @@ const error = ref(null)
 onMounted(() => {
   loadSettings()
   checkTutorialCompleted()
+  // 加载用户信息
+  const savedUser = localStorage.getItem('motion-games-current-user')
+  if (savedUser) {
+    gameStore.setCurrentUser(savedUser)
+  }
 })
 
 function loadSettings() {

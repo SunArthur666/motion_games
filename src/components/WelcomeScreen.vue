@@ -83,11 +83,24 @@
         </button>
       </div>
 
+      <!-- 用户入口 -->
+      <div class="user-link" @click="showUserProfile = true">
+        <span v-if="gameStore.currentUser">👤 {{ gameStore.currentUser }}</span>
+        <span v-else>👤 用户设置</span>
+      </div>
+
       <!-- 设置入口 -->
       <div class="settings-link" @click="showQuickSettings = true">
         <span>⚙️ 设置</span>
       </div>
     </div>
+
+    <!-- 用户设置弹窗 -->
+    <UserProfile
+      v-if="showUserProfile"
+      @close="showUserProfile = false"
+      @login="handleUserLogin"
+    />
 
     <!-- 快速设置弹窗 -->
     <transition name="fade">
@@ -122,15 +135,29 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { useGameStore } from '@/stores/game'
 import { USER_DIFFICULTY_MODES } from '@/config/levelConfig'
+import UserProfile from '@/components/UserProfile.vue'
 
 const emit = defineEmits(['start', 'mouseMode'])
 
 const gameStore = useGameStore()
 const showQuickSettings = ref(false)
+const showUserProfile = ref(false)
 const performanceMode = ref(gameStore.performanceMode)
+
+// 加载用户信息
+onMounted(() => {
+  const saved = localStorage.getItem('motion-games-current-user')
+  if (saved) {
+    gameStore.setCurrentUser(saved)
+  }
+})
+
+function handleUserLogin(username) {
+  gameStore.setCurrentUser(username)
+}
 
 const difficultyModes = Object.values(USER_DIFFICULTY_MODES)
 const currentDifficultyDesc = computed(() => {
@@ -353,14 +380,16 @@ watch(performanceMode, (mode) => {
   transform: scale(1.02);
 }
 
+.user-link,
 .settings-link {
-  margin-top: 30px;
+  margin-top: 15px;
   color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
   font-size: 16px;
   transition: color 0.3s;
 }
 
+.user-link:hover,
 .settings-link:hover {
   color: #64c8ff;
 }

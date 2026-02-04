@@ -606,13 +606,171 @@ export const POSE_MIMICRY_LEVELS = [
 ]
 
 /**
+ * 数字识别关卡配置
+ * 难度递增：数字范围、速度、数量
+ */
+export const NUMBER_RECOGNITION_LEVELS = [
+  {
+    id: 'number-1',
+    gameType: 4,
+    subLevel: 1,
+    name: '认识数字1-3',
+    description: '学习基础数字',
+    difficulty: 'easy',
+    icon: '🔢',
+    config: {
+      spawnInterval: 3000,
+      balloonSpeed: 1.5,
+      balloonRadius: [50, 60],
+      numbers: [1, 2, 3],
+      targetCount: 8,
+      timeLimit: null,
+      lives: 5,
+      scoreMultiplier: 1.0
+    },
+    stars: {
+      3: { score: 800, time: null, accuracy: 0.9 },
+      2: { score: 500, time: null, accuracy: 0.7 },
+      1: { score: 250, time: null, accuracy: 0.5 }
+    },
+    unlocked: true
+  },
+  {
+    id: 'number-2',
+    gameType: 4,
+    subLevel: 2,
+    name: '数字1-5',
+    description: '扩展数字范围',
+    difficulty: 'easy',
+    icon: '🔢',
+    config: {
+      spawnInterval: 2500,
+      balloonSpeed: 2.0,
+      balloonRadius: [45, 55],
+      numbers: [1, 2, 3, 4, 5],
+      targetCount: 12,
+      timeLimit: null,
+      lives: 4,
+      scoreMultiplier: 1.2
+    },
+    stars: {
+      3: { score: 1200, time: null, accuracy: 0.85 },
+      2: { score: 750, time: null, accuracy: 0.7 },
+      1: { score: 400, time: null, accuracy: 0.5 }
+    },
+    unlocked: false
+  },
+  {
+    id: 'number-3',
+    gameType: 4,
+    subLevel: 3,
+    name: '数字1-9',
+    description: '所有个位数',
+    difficulty: 'medium',
+    icon: '🔢',
+    config: {
+      spawnInterval: 2000,
+      balloonSpeed: 2.5,
+      balloonRadius: [40, 50],
+      numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      targetCount: 15,
+      timeLimit: null,
+      lives: 3,
+      scoreMultiplier: 1.5
+    },
+    stars: {
+      3: { score: 2000, time: null, accuracy: 0.8 },
+      2: { score: 1200, time: null, accuracy: 0.65 },
+      1: { score: 600, time: null, accuracy: 0.5 }
+    },
+    unlocked: false
+  },
+  {
+    id: 'number-4',
+    gameType: 4,
+    subLevel: 4,
+    name: '快速识别',
+    description: '速度挑战',
+    difficulty: 'medium',
+    icon: '⚡',
+    config: {
+      spawnInterval: 1500,
+      balloonSpeed: 3.5,
+      balloonRadius: [35, 45],
+      numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      targetCount: 20,
+      timeLimit: 120,
+      lives: 3,
+      scoreMultiplier: 2.0
+    },
+    stars: {
+      3: { score: 3500, time: 90, accuracy: 0.75 },
+      2: { score: 2200, time: 120, accuracy: 0.6 },
+      1: { score: 1100, time: null, accuracy: 0.5 }
+    },
+    unlocked: false
+  },
+  {
+    id: 'number-5',
+    gameType: 4,
+    subLevel: 5,
+    name: '包含0',
+    description: '学习数字0',
+    difficulty: 'hard',
+    icon: '🎯',
+    config: {
+      spawnInterval: 1200,
+      balloonSpeed: 4.0,
+      balloonRadius: [30, 40],
+      numbers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      targetCount: 25,
+      timeLimit: 100,
+      lives: 2,
+      scoreMultiplier: 2.5
+    },
+    stars: {
+      3: { score: 5000, time: 80, accuracy: 0.85 },
+      2: { score: 3500, time: 100, accuracy: 0.7 },
+      1: { score: 1800, time: null, accuracy: 0.55 }
+    },
+    unlocked: false
+  },
+  {
+    id: 'number-6',
+    gameType: 4,
+    subLevel: 6,
+    name: '数字大师',
+    description: '最高难度',
+    difficulty: 'expert',
+    icon: '🔥',
+    config: {
+      spawnInterval: 800,
+      balloonSpeed: 5.0,
+      balloonRadius: [25, 35],
+      numbers: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      targetCount: 30,
+      timeLimit: 90,
+      lives: 1,
+      scoreMultiplier: 3.0
+    },
+    stars: {
+      3: { score: 8000, time: 70, accuracy: 0.9 },
+      2: { score: 5500, time: 90, accuracy: 0.75 },
+      1: { score: 3000, time: null, accuracy: 0.6 }
+    },
+    unlocked: false
+  }
+]
+
+/**
  * 获取所有关卡配置
  */
 export function getAllLevels() {
   return [
     ...COLOR_BATTLE_LEVELS,
     ...OBSTACLE_DODGE_LEVELS,
-    ...POSE_MIMICRY_LEVELS
+    ...POSE_MIMICRY_LEVELS,
+    ...NUMBER_RECOGNITION_LEVELS
   ]
 }
 
@@ -627,6 +785,8 @@ export function getLevelsByGameType(gameType) {
       return OBSTACLE_DODGE_LEVELS
     case 3:
       return POSE_MIMICRY_LEVELS
+    case 4:
+      return NUMBER_RECOGNITION_LEVELS
     default:
       return []
   }

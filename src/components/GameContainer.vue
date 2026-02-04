@@ -107,6 +107,19 @@
       @collision="handleCollision"
     />
 
+    <NumberRecognitionLevel
+      v-if="gameStore.currentLevel === 4"
+      :landmarks="currentLandmarks"
+      :canvas-width="canvasWidth"
+      :canvas-height="canvasHeight"
+      :game-type="gameStore.currentLevel"
+      :sub-level="gameStore.currentSubLevel"
+      @collision="handleCollision"
+      @prompt="handlePrompt"
+      @level-complete="handleLevelComplete"
+      @encouragement="handleEncouragement"
+    />
+
     <!-- 粒子画布 -->
     <canvas ref="particleCanvas" class="particle-canvas"></canvas>
 
@@ -134,6 +147,18 @@
     <div v-if="gameStore.userDifficulty === 'easy'" class="easy-mode-hint">
       <span>🌟 轻松模式</span>
     </div>
+
+    <!-- 骨骼显示开关 -->
+    <div class="skeleton-toggle">
+      <button
+        @click="toggleSkeleton"
+        class="skeleton-btn"
+        :class="{ active: gameStore.showSkeleton }"
+        title="显示/隐藏骨骼"
+      >
+        {{ gameStore.showSkeleton ? '🦴' : '👤' }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -144,11 +169,13 @@ import { useParticles } from '@/composables/useParticles'
 import { useGameStore } from '@/stores/game'
 import { trackEvent } from '@/utils/analytics'
 import { getLevelConfig } from '@/config/levelConfig'
+import { drawSkeleton } from '@/composables/useSkeletonDraw'
 import ColorBattleLevel from '@/levels/ColorBattleLevel.vue'
 import EncouragementToast from '@/components/EncouragementToast.vue'
 import PowerUpDisplay from '@/components/PowerUpDisplay.vue'
 import ObstacleDodgeLevel from '@/levels/ObstacleDodgeLevel.vue'
 import PoseMimicryLevel from '@/levels/PoseMimicryLevel.vue'
+import NumberRecognitionLevel from '@/levels/NumberRecognitionLevel.vue'
 
 const emit = defineEmits(['game-over'])
 
@@ -229,6 +256,11 @@ function handlePoseResults({ landmarks, image }) {
   // 添加暗色遮罩
   ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'
   ctx.fillRect(0, 0, width, height)
+
+  // 绘制骨骼（如果启用）
+  if (gameStore.showSkeleton && landmarks && landmarks.length >= 33) {
+    drawSkeleton(ctx, landmarks, width, height, gameStore.isMirrored)
+  }
 
   // 计算运动强度并创建肢体轨迹
   // 优化：减少不必要的计算
@@ -352,6 +384,11 @@ function handlePowerUp(event) {
       canvasHeight.value / 2
     )
   }
+}
+
+// 切换骨骼显示
+function toggleSkeleton() {
+  gameStore.toggleSkeleton()
 }
 
 // 游戏结束
@@ -761,5 +798,39 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+/* 骨骼显示开关 */
+.skeleton-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.skeleton-btn {
+  width: 60px;
+  height: 60px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  font-size: 28px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skeleton-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: #00ff00;
+  transform: scale(1.1);
+}
+
+.skeleton-btn.active {
+  background: rgba(0, 255, 0, 0.2);
+  border-color: #00ff00;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
 }
 </style>

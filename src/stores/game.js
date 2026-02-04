@@ -78,6 +78,10 @@ export const useGameStore = defineStore('game', () => {
     feetVisible: true
   })
 
+  // 用户系统
+  const currentUser = ref(null)  // 当前登录用户，null表示匿名
+  const showSkeleton = ref(false)  // 是否显示骨骼
+
   // 计算属性
   const shouldTakeBreak = computed(() => {
     if (!lastBreakTime.value) return false
@@ -88,7 +92,11 @@ export const useGameStore = defineStore('game', () => {
   // 初始化：从localStorage加载进度
   function loadProgress() {
     try {
-      const saved = localStorage.getItem('motion-games-progress')
+      // 如果有用户，加载用户进度；否则加载匿名进度
+      const key = currentUser.value 
+        ? `motion-games-progress-${currentUser.value}`
+        : 'motion-games-progress'
+      const saved = localStorage.getItem(key)
       if (saved) {
         levelProgress.value = JSON.parse(saved)
         // 确保第一关解锁
@@ -114,11 +122,67 @@ export const useGameStore = defineStore('game', () => {
 
   // 保存进度
   function saveProgress() {
+    if (!currentUser.value) return // 匿名用户不保存
+    
     try {
-      localStorage.setItem('motion-games-progress', JSON.stringify(levelProgress.value))
+      const key = `motion-games-progress-${currentUser.value}`
+      localStorage.setItem(key, JSON.stringify(levelProgress.value))
     } catch (e) {
       console.warn('Failed to save progress:', e)
     }
+  }
+
+  // 保存游戏历史
+  function saveGameHistory(gameType, subLevel, stars, levelName) {
+    if (!currentUser.value) return // 匿名用户不保存历史
+    
+    try {
+      const key = `motion-games-history-${currentUser.value}`
+      const saved = localStorage.getItem(key)
+      const history = saved ? JSON.parse(saved) : []
+      
+      history.unshift({
+        gameType,
+        subLevel,
+        stars,
+        levelName,
+        timestamp: Date.now()
+      })
+      
+      // 只保留最近50条记录
+      if (history.length > 50) {
+        history.splice(50)
+      }
+      
+      localStorage.setItem(key, JSON.stringify(history))
+    } catch (e) {
+      console.warn('Failed to save history:', e)
+    }
+  }
+
+  // 设置当前用户
+  function setCurrentUser(username) {
+    // 保存当前匿名进度（如果有）
+    if (!currentUser.value && Object.keys(levelProgress.value).length > 0) {
+      const tempKey = 'motion-games-progress-temp'
+      localStorage.setItem(tempKey, JSON.stringify(levelProgress.value))
+    }
+    
+    currentUser.value = username
+    if (username) {
+      localStorage.setItem('motion-games-current-user', username)
+    } else {
+      localStorage.removeItem('motion-games-current-user')
+    }
+    
+    // 加载新用户的进度
+    loadProgress()
+    loadStatistics()
+  }
+
+  // 切换骨骼显示
+  function toggleSkeleton() {
+    showSkeleton.value = !showSkeleton.value
   }
 
   // 检查关卡是否解锁
@@ -164,6 +228,12 @@ export const useGameStore = defineStore('game', () => {
     }
 
     saveProgress()
+    
+    // 保存游戏历史（仅登录用户）
+    if (currentUser.value) {
+      saveGameHistory(gameType, subLevel, stars, levelConfig.name)
+    }
+    
     return stars
   }
 
@@ -368,6 +438,7 @@ export const useGameStore = defineStore('game', () => {
     sessionStartTime, totalPlayTime, lastBreakTime, isMirrored,
     performanceMode, targetFPS, renderFPS, customColors, safetyZone, levelProgress,
     userDifficulty, streak, maxStreak, activePowerUps, collectedPowerUps, statistics,
+    currentUser, showSkeleton,
     // Computed
     shouldTakeBreak, totalStars, userDifficultyConfig,
     // Actions
@@ -378,6 +449,8 @@ export const useGameStore = defineStore('game', () => {
     loadProgress, saveProgress, isLevelUnlocked, completeLevel, getLevelProgress,
     // New features
     setUserDifficulty, getAdjustedLevelConfig, addStreak, resetStreak,
-    getEncouragement, addPowerUp, isPowerUpActive, updatePowerUps, saveSettings, loadSettings
+    getEncouragement, addPowerUp, isPowerUpActive, updatePowerUps, saveSettings, loadSettings,
+    // User system
+    setCurrentUser, saveGameHistory, toggleSkeleton
   }
 })
