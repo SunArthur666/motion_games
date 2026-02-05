@@ -151,141 +151,129 @@ function formatTime(timestamp) {
 <style scoped>
 .user-profile {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.9);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
+  backdrop-filter: saturate(180%) blur(12px);
 }
 
 .profile-content {
   width: 90%;
   max-width: 500px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-radius: 30px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  background: var(--apple-bg-tertiary, #fff);
+  border-radius: var(--apple-radius-lg, 18px);
+  padding: var(--apple-space-xl);
+  box-shadow: var(--apple-shadow-lg);
 }
 
 .title {
-  font-size: 32px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-lg);
   text-align: center;
 }
 
 .current-user {
-  margin-bottom: 30px;
+  margin-bottom: var(--apple-space-lg);
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 15px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
-  margin-bottom: 15px;
-}
-
-.user-icon {
-  font-size: 32px;
+  gap: var(--apple-space-md);
+  padding: var(--apple-space-md);
+  background: var(--apple-bg-secondary);
+  border-radius: var(--apple-radius);
+  margin-bottom: var(--apple-space-md);
 }
 
 .user-name {
-  font-size: 20px;
-  color: #fff;
-  font-weight: bold;
+  font-size: 17px;
+  color: var(--apple-text);
+  font-weight: 600;
 }
 
 .logout-btn {
   width: 100%;
   padding: 12px;
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
-  border: 2px solid #ef4444;
-  border-radius: 15px;
+  background: transparent;
+  color: var(--apple-red, #ff3b30);
+  border: 1px solid var(--apple-red, #ff3b30);
+  border-radius: var(--apple-radius);
   cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
+  font-size: 15px;
 }
 
 .logout-btn:hover {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(255, 59, 48, 0.08);
 }
 
 .login-section {
-  margin-bottom: 30px;
-}
-
-.input-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--apple-space-lg);
 }
 
 .input-group label {
   display: block;
-  color: #fff;
-  font-size: 16px;
-  margin-bottom: 10px;
+  color: var(--apple-text);
+  font-size: 15px;
+  margin-bottom: 8px;
 }
 
 .username-input {
   width: 100%;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
-  color: #fff;
-  font-size: 16px;
+  padding: 12px 16px;
+  background: var(--apple-bg);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius);
+  color: var(--apple-text);
+  font-size: 17px;
 }
 
 .username-input:focus {
   outline: none;
-  border-color: #64c8ff;
+  border-color: var(--apple-link);
 }
 
 .hint {
-  padding: 15px;
-  background: rgba(100, 200, 255, 0.1);
-  border-radius: 15px;
-  margin-bottom: 20px;
+  padding: var(--apple-space-md);
+  background: var(--apple-bg-secondary);
+  border-radius: var(--apple-radius);
+  margin-bottom: var(--apple-space-md);
 }
 
 .hint p {
-  margin: 5px 0;
-  color: rgba(255, 255, 255, 0.7);
+  margin: 4px 0;
+  color: var(--apple-text-secondary);
   font-size: 14px;
 }
 
 .actions {
   display: flex;
-  gap: 15px;
+  gap: var(--apple-space-md);
 }
 
 .login-btn,
 .skip-btn {
   flex: 1;
-  padding: 15px;
-  border-radius: 15px;
-  font-size: 16px;
-  font-weight: bold;
+  padding: 14px;
+  border-radius: var(--apple-radius);
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
 }
 
 .login-btn {
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  color: #000;
+  background: var(--apple-text);
+  color: #fff;
   border: none;
 }
 
 .login-btn:hover:not(:disabled) {
-  transform: scale(1.05);
+  opacity: 0.92;
 }
 
 .login-btn:disabled {
@@ -294,76 +282,69 @@ function formatTime(timestamp) {
 }
 
 .skip-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: var(--apple-bg-secondary);
+  color: var(--apple-text);
+  border: 1px solid var(--apple-border);
 }
 
 .skip-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--apple-bg);
 }
 
 .history-section {
-  margin-bottom: 30px;
+  margin-bottom: var(--apple-space-lg);
 }
 
 .section-title {
-  font-size: 20px;
-  color: #fff;
-  margin-bottom: 15px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-md);
 }
 
 .history-list {
-  max-height: 300px;
+  max-height: 280px;
   overflow-y: auto;
 }
 
 .history-item {
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.history-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 5px;
+  padding: var(--apple-space-md);
+  background: var(--apple-bg-secondary);
+  border-radius: var(--apple-radius-sm);
+  margin-bottom: var(--apple-space-sm);
 }
 
 .history-game {
-  color: #64c8ff;
-  font-weight: bold;
+  color: var(--apple-link);
+  font-weight: 600;
 }
 
 .history-level {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--apple-text-secondary);
 }
 
 .history-stars {
-  color: #ffd700;
-  font-weight: bold;
+  color: var(--apple-text);
+  font-weight: 500;
 }
 
 .history-time {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--apple-text-tertiary);
   font-size: 12px;
 }
 
 .close-btn {
   width: 100%;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
+  padding: 14px;
+  background: var(--apple-bg-secondary);
+  color: var(--apple-text);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius);
   cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
+  font-size: 15px;
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--apple-bg);
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" :class="{ 'is-playing': gameState === 'playing' }">
     <!-- 欢迎界面 -->
     <WelcomeScreen v-if="gameState === 'welcome'" @start="showPositionGuide" @mouseMode="showMouseExperience" />
 
@@ -208,25 +208,31 @@ watch([() => gameStore.isMirrored, () => gameStore.performanceMode, () => gameSt
   width: 100%;
   height: 100%;
   position: relative;
-  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
+  background: var(--apple-bg, #fbfbfd);
   overflow: hidden;
+  transition: background var(--apple-duration) var(--apple-ease);
+}
+
+.app-container.is-playing {
+  background: #000;
 }
 
 .error-toast {
   position: fixed;
-  top: 20px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(239, 68, 68, 0.95);
+  background: var(--apple-red);
   color: #fff;
-  padding: 15px 25px;
-  border-radius: 10px;
+  padding: 12px 24px;
+  border-radius: var(--apple-radius, 12px);
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
   z-index: 10000;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--apple-shadow-lg);
   max-width: 90%;
+  font-size: 15px;
 }
 
 .error-icon {

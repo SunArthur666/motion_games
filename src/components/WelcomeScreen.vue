@@ -1,14 +1,12 @@
 <template>
   <div class="welcome-screen">
     <div class="welcome-content">
-      <!-- Logo 和标题 -->
       <div class="logo-section">
         <div class="logo-icon">🎮</div>
         <h1 class="game-title">体感小游戏</h1>
-        <p class="game-subtitle">全身互动 · 健康娱乐</p>
+        <p class="game-subtitle">全身互动，健康娱乐</p>
       </div>
 
-      <!-- 游戏特色 -->
       <div class="features">
         <div class="feature-item">
           <span class="feature-icon">🎯</span>
@@ -24,42 +22,38 @@
         </div>
       </div>
 
-      <!-- 玩法说明 -->
-      <div class="how-to-play">
-        <h2>怎么玩？</h2>
+      <section class="section how-to-play">
+        <h2 class="section-title">怎么玩</h2>
         <div class="steps">
           <div class="step">
-            <span class="step-number">1</span>
-            <span class="step-text">站到屏幕中央，全身显示在画面内</span>
+            <span class="step-num">1</span>
+            <span class="step-text">站到屏幕中央，全身入画</span>
           </div>
           <div class="step">
-            <span class="step-number">2</span>
-            <span class="step-text">用手触碰屏幕上的气球和道具</span>
+            <span class="step-num">2</span>
+            <span class="step-text">用手触碰屏幕上的气球与道具</span>
           </div>
           <div class="step">
-            <span class="step-number">3</span>
-            <span class="step-text">配合身体动作完成关卡挑战</span>
+            <span class="step-num">3</span>
+            <span class="step-text">配合身体动作完成关卡</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- 温馨提示 -->
       <div class="tips">
-        <p>💡 请确保摄像头已允许访问</p>
-        <p>💡 建议投屏到电视获得更好体验</p>
-        <p>💡 每15分钟会自动提醒休息</p>
+        <p>请确保已允许摄像头访问</p>
+        <p>建议投屏到电视体验更佳</p>
+        <p>每 15 分钟会提醒休息</p>
       </div>
 
-      <!-- 难度选择 -->
       <div class="difficulty-selector">
-        <span class="difficulty-label">游戏难度：</span>
+        <span class="difficulty-label">难度</span>
         <div class="difficulty-options">
           <button
             v-for="mode in difficultyModes"
             :key="mode.id"
             class="difficulty-btn"
             :class="{ active: gameStore.userDifficulty === mode.id }"
-            :style="{ '--color': mode.color }"
             @click="selectDifficulty(mode.id)"
           >
             <span class="mode-icon">{{ mode.icon }}</span>
@@ -69,56 +63,31 @@
         <p class="difficulty-desc">{{ currentDifficultyDesc }}</p>
       </div>
 
-      <!-- 开始按钮 -->
       <button @click="handleStart" class="start-btn">
         <span>开始游戏</span>
         <span class="arrow">→</span>
       </button>
 
-      <!-- 鼠标体验模式入口 -->
       <div class="mouse-mode-entry">
-        <p class="mouse-hint">没有摄像头？</p>
-        <button @click="handleMouseMode" class="mouse-btn">
-          <span>🖱️ 鼠标体验模式</span>
+        <button @click="handleMouseMode" class="link-btn">没有摄像头？使用鼠标体验</button>
+      </div>
+
+      <nav class="nav-links">
+        <button @click="showUserProfile = true" class="nav-link">
+          {{ gameStore.currentUser ? gameStore.currentUser : '用户' }}
         </button>
-      </div>
-
-      <!-- 用户入口 -->
-      <div class="user-link" @click="showUserProfile = true">
-        <span v-if="gameStore.currentUser">👤 {{ gameStore.currentUser }}</span>
-        <span v-else>👤 用户设置</span>
-      </div>
-
-      <!-- 数据统计 -->
-      <div class="stats-link" @click="showStatistics = true">
-        <span>📊 数据统计</span>
-      </div>
-
-      <!-- 设置入口 -->
-      <div class="settings-link" @click="showQuickSettings = true">
-        <span>⚙️ 设置</span>
-      </div>
+        <button @click="showStatistics = true" class="nav-link">统计</button>
+        <button @click="showQuickSettings = true" class="nav-link">设置</button>
+      </nav>
     </div>
 
-    <!-- 用户设置弹窗 -->
-    <UserProfile
-      v-if="showUserProfile"
-      @close="showUserProfile = false"
-      @login="handleUserLogin"
-    />
+    <UserProfile v-if="showUserProfile" @close="showUserProfile = false" @login="handleUserLogin" />
+    <StatisticsPanel v-if="showStatistics" @close="showStatistics = false" />
 
-    <!-- 数据统计弹窗 -->
-    <StatisticsPanel
-      v-if="showStatistics"
-      @close="showStatistics = false"
-    />
-
-    <!-- 快速设置弹窗 -->
     <transition name="fade">
-      <div v-if="showQuickSettings" class="quick-settings" @click.self="showQuickSettings = false">
-        <div class="settings-content">
-          <h2>快速设置</h2>
-
+      <div v-if="showQuickSettings" class="modal-overlay" @click.self="showQuickSettings = false">
+        <div class="modal-card">
+          <h2 class="modal-title">设置</h2>
           <div class="setting-item">
             <label>镜像模式</label>
             <button
@@ -126,19 +95,17 @@
               class="toggle-btn"
               :class="{ active: gameStore.isMirrored }"
             >
-              {{ gameStore.isMirrored ? '开启' : '关闭' }}
+              {{ gameStore.isMirrored ? '开' : '关' }}
             </button>
           </div>
-
           <div class="setting-item">
-            <label>性能模式</label>
+            <label>性能</label>
             <select v-model="performanceMode" class="select-input">
-              <option value="high">高性能</option>
-              <option value="low">低功耗</option>
+              <option value="high">高</option>
+              <option value="low">低</option>
             </select>
           </div>
-
-          <button @click="showQuickSettings = false" class="close-btn">完成</button>
+          <button @click="showQuickSettings = false" class="modal-btn">完成</button>
         </div>
       </div>
     </transition>
@@ -153,19 +120,15 @@ import UserProfile from '@/components/UserProfile.vue'
 import StatisticsPanel from '@/components/StatisticsPanel.vue'
 
 const emit = defineEmits(['start', 'mouseMode'])
-
 const gameStore = useGameStore()
 const showQuickSettings = ref(false)
 const showUserProfile = ref(false)
 const showStatistics = ref(false)
 const performanceMode = ref(gameStore.performanceMode)
 
-// 加载用户信息
 onMounted(() => {
   const saved = localStorage.getItem('motion-games-current-user')
-  if (saved) {
-    gameStore.setCurrentUser(saved)
-  }
+  if (saved) gameStore.setCurrentUser(saved)
 })
 
 function handleUserLogin(username) {
@@ -201,56 +164,50 @@ watch(performanceMode, (mode) => {
 
 <style scoped>
 .welcome-screen {
-  width: 100%;
-  height: 100%;
+  min-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0a0a1a 100%);
+  background: var(--apple-bg);
+  padding: var(--apple-space-xl) var(--apple-space-md);
   overflow-y: auto;
-  padding: 20px;
 }
 
 .welcome-content {
-  max-width: 600px;
+  max-width: 580px;
+  width: 100%;
   text-align: center;
 }
 
 .logo-section {
-  margin-bottom: 50px;
+  margin-bottom: var(--apple-space-2xl);
 }
 
 .logo-icon {
-  font-size: 100px;
-  margin-bottom: 20px;
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+  font-size: 72px;
+  margin-bottom: var(--apple-space-lg);
+  opacity: 0.95;
 }
 
 .game-title {
-  font-size: 56px;
-  font-weight: bold;
-  background: linear-gradient(135deg, #64c8ff 0%, #4ade80 50%, #ffd93d 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 10px;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-sm);
 }
 
 .game-subtitle {
-  font-size: 24px;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: 21px;
+  font-weight: 400;
+  color: var(--apple-text-secondary);
 }
 
 .features {
   display: flex;
   justify-content: center;
-  gap: 30px;
-  margin-bottom: 50px;
+  gap: var(--apple-space-lg);
+  margin-bottom: var(--apple-space-2xl);
   flex-wrap: wrap;
 }
 
@@ -258,292 +215,291 @@ watch(performanceMode, (mode) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
+  gap: var(--apple-space-sm);
+  padding: var(--apple-space-lg) var(--apple-space-xl);
+  background: var(--apple-bg-tertiary);
+  border-radius: var(--apple-radius-lg);
+  box-shadow: var(--apple-shadow-sm);
   min-width: 120px;
-  transition: all 0.3s;
+  transition: transform var(--apple-duration) var(--apple-ease), box-shadow var(--apple-duration) var(--apple-ease);
 }
 
 .feature-item:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-5px);
+  transform: translateY(-2px);
+  box-shadow: var(--apple-shadow);
 }
 
 .feature-icon {
-  font-size: 48px;
+  font-size: 40px;
 }
 
 .feature-text {
-  color: #fff;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--apple-text);
 }
 
-.how-to-play {
-  background: rgba(100, 200, 255, 0.1);
-  border-radius: 20px;
-  padding: 30px;
-  margin-bottom: 30px;
+.section {
   text-align: left;
+  margin-bottom: var(--apple-space-xl);
 }
 
-.how-to-play h2 {
-  color: #64c8ff;
+.section-title {
   font-size: 24px;
-  margin-bottom: 20px;
+  font-weight: 600;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-lg);
   text-align: center;
 }
 
 .steps {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: var(--apple-space-md);
 }
 
 .step {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: var(--apple-space-md);
 }
 
-.step-number {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #64c8ff, #4ade80);
-  color: #000;
+.step-num {
+  width: 28px;
+  height: 28px;
+  background: var(--apple-text);
+  color: var(--apple-bg);
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-size: 15px;
+  font-weight: 600;
   flex-shrink: 0;
 }
 
 .step-text {
-  color: #fff;
-  font-size: 16px;
+  font-size: 17px;
+  color: var(--apple-text-secondary);
 }
 
 .tips {
-  margin-bottom: 40px;
+  margin-bottom: var(--apple-space-xl);
 }
 
 .tips p {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: 15px;
+  color: var(--apple-text-tertiary);
+  margin-bottom: var(--apple-space-xs);
 }
 
-.start-btn {
-  padding: 20px 80px;
-  font-size: 28px;
-  font-weight: bold;
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  color: #000;
-  border: none;
-  border-radius: 50px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 15px;
-  box-shadow: 0 0 40px rgba(74, 222, 128, 0.4);
-  transition: all 0.3s;
-}
-
-.start-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 50px rgba(74, 222, 128, 0.6);
-}
-
-.start-btn .arrow {
-  font-size: 24px;
-  transition: transform 0.3s;
-}
-
-.start-btn:hover .arrow {
-  transform: translateX(5px);
-}
-
-.mouse-mode-entry {
-  margin-top: 25px;
-  text-align: center;
-}
-
-.mouse-hint {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.mouse-btn {
-  padding: 12px 25px;
-  font-size: 16px;
-  background: rgba(255, 152, 0, 0.2);
-  color: #ff9800;
-  border: 2px solid rgba(255, 152, 0, 0.3);
-  border-radius: 25px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.mouse-btn:hover {
-  background: rgba(255, 152, 0, 0.3);
-  border-color: #ff9800;
-  transform: scale(1.02);
-}
-
-.user-link,
-.stats-link,
-.settings-link {
-  margin-top: 15px;
-  color: rgba(255, 255, 255, 0.5);
-  cursor: pointer;
-  font-size: 16px;
-  transition: color 0.3s;
-}
-
-.user-link:hover,
-.stats-link:hover,
-.settings-link:hover {
-  color: #64c8ff;
-}
-
-.quick-settings {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.settings-content {
-  width: 400px;
-  background: #1a1a2e;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-}
-
-.settings-content h2 {
-  color: #fff;
-  margin-bottom: 30px;
-}
-
-.setting-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.setting-item label {
-  color: #fff;
-  font-size: 18px;
-}
-
-.toggle-btn,
-.select-input {
-  padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.toggle-btn.active {
-  background: #64c8ff;
-  color: #000;
-}
-
-.close-btn {
-  width: 100%;
-  padding: 15px;
-  background: #64c8ff;
-  color: #000;
-  border: none;
-  border-radius: 10px;
-  font-size: 18px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* 难度选择 */
 .difficulty-selector {
-  margin-bottom: 30px;
-  padding: 25px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 20px;
+  margin-bottom: var(--apple-space-xl);
+  padding: var(--apple-space-lg);
+  background: var(--apple-bg-secondary);
+  border-radius: var(--apple-radius-lg);
 }
 
 .difficulty-label {
-  color: #fff;
-  font-size: 18px;
   display: block;
-  margin-bottom: 15px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--apple-text-secondary);
+  margin-bottom: var(--apple-space-md);
 }
 
 .difficulty-options {
   display: flex;
   justify-content: center;
-  gap: 15px;
-  margin-bottom: 15px;
+  gap: var(--apple-space-md);
+  margin-bottom: var(--apple-space-sm);
 }
 
 .difficulty-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 15px 25px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 3px solid transparent;
-  border-radius: 15px;
+  gap: var(--apple-space-xs);
+  padding: var(--apple-space-md) var(--apple-space-lg);
+  background: var(--apple-bg-tertiary);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius);
   cursor: pointer;
-  transition: all 0.3s;
-  min-width: 100px;
+  transition: border-color var(--apple-duration), background var(--apple-duration);
+  min-width: 90px;
 }
 
 .difficulty-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-3px);
+  background: var(--apple-bg-secondary);
 }
 
 .difficulty-btn.active {
-  border-color: var(--color);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 20px var(--color);
+  border-color: var(--apple-link);
+  background: rgba(0, 113, 227, 0.06);
 }
 
 .mode-icon {
-  font-size: 32px;
+  font-size: 24px;
 }
 
 .mode-name {
-  color: #fff;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--apple-text);
 }
 
 .difficulty-desc {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
+  font-size: 13px;
+  color: var(--apple-text-tertiary);
   margin: 0;
+}
+
+.start-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--apple-space-sm);
+  width: 100%;
+  max-width: 320px;
+  padding: 18px 32px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--apple-text);
+  border: none;
+  border-radius: var(--apple-radius-xl);
+  cursor: pointer;
+  transition: opacity var(--apple-duration), transform var(--apple-duration);
+}
+
+.start-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.01);
+}
+
+.start-btn .arrow {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+.mouse-mode-entry {
+  margin-top: var(--apple-space-lg);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: var(--apple-link);
+  cursor: pointer;
+  padding: var(--apple-space-sm);
+  text-decoration: none;
+}
+
+.link-btn:hover {
+  text-decoration: underline;
+}
+
+.nav-links {
+  margin-top: var(--apple-space-xl);
+  display: flex;
+  justify-content: center;
+  gap: var(--apple-space-lg);
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: var(--apple-text-secondary);
+  cursor: pointer;
+  padding: var(--apple-space-sm);
+}
+
+.nav-link:hover {
+  color: var(--apple-link);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: saturate(180%) blur(12px);
+}
+
+.modal-card {
+  width: 90%;
+  max-width: 400px;
+  background: var(--apple-bg-tertiary);
+  border-radius: var(--apple-radius-lg);
+  padding: var(--apple-space-xl);
+  box-shadow: var(--apple-shadow-lg);
+}
+
+.modal-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-lg);
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--apple-space-md);
+}
+
+.setting-item label {
+  font-size: 17px;
+  color: var(--apple-text);
+}
+
+.toggle-btn,
+.select-input {
+  padding: 8px 16px;
+  background: var(--apple-bg-secondary);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius-sm);
+  font-size: 15px;
+  color: var(--apple-text);
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  background: var(--apple-link);
+  color: #fff;
+  border-color: var(--apple-link);
+}
+
+.modal-btn {
+  width: 100%;
+  margin-top: var(--apple-space-lg);
+  padding: 14px;
+  font-size: 17px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--apple-text);
+  border: none;
+  border-radius: var(--apple-radius);
+  cursor: pointer;
+}
+
+.modal-btn:hover {
+  opacity: 0.9;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--apple-duration) var(--apple-ease);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

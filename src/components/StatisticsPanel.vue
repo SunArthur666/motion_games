@@ -97,7 +97,8 @@ function close() {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: saturate(180%) blur(12px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -109,40 +110,41 @@ function close() {
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  border-radius: 24px;
-  padding: 32px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  background: var(--apple-bg-tertiary, #fff);
+  border-radius: var(--apple-radius-lg, 18px);
+  padding: var(--apple-space-xl);
+  box-shadow: var(--apple-shadow-lg);
 }
 
 .title {
   font-size: 28px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 24px;
+  font-weight: 600;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-lg);
   text-align: center;
 }
 
 .section-title {
-  font-size: 18px;
-  color: #64c8ff;
-  margin-bottom: 16px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-md);
 }
 
 .stats-section {
-  margin-bottom: 28px;
+  margin-bottom: var(--apple-space-lg);
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: var(--apple-space-md);
 }
 
 .stat-item {
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 16px;
+  background: var(--apple-bg-secondary);
+  border-radius: var(--apple-radius);
+  padding: var(--apple-space-md);
   text-align: center;
 }
 
@@ -152,45 +154,45 @@ function close() {
 
 .stat-value {
   display: block;
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--apple-text);
   margin-bottom: 4px;
 }
 
 .stat-label {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--apple-text-tertiary);
 }
 
 .achievements-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--apple-space-lg);
 }
 
 .achievements-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--apple-space-sm);
 }
 
 .achievement-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
-  border: 2px solid transparent;
+  gap: var(--apple-space-md);
+  padding: var(--apple-space-md);
+  background: var(--apple-bg-secondary);
+  border-radius: var(--apple-radius);
+  border: 1px solid var(--apple-border);
 }
 
 .achievement-card.unlocked {
-  background: rgba(74, 222, 128, 0.1);
-  border-color: rgba(74, 222, 128, 0.4);
+  background: rgba(52, 199, 89, 0.08);
+  border-color: rgba(52, 199, 89, 0.3);
 }
 
 .achievement-icon {
-  font-size: 36px;
-  opacity: 0.6;
+  font-size: 32px;
+  opacity: 0.5;
 }
 
 .achievement-card.unlocked .achievement-icon {
@@ -202,42 +204,41 @@ function close() {
 }
 
 .achievement-name {
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--apple-text);
 }
 
 .achievement-desc {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--apple-text-secondary);
   margin-top: 4px;
 }
 
 .achievement-badge {
   width: 28px;
   height: 28px;
-  background: #4ade80;
-  color: #000;
+  background: var(--apple-green, #34c759);
+  color: #fff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .close-btn {
   width: 100%;
   padding: 14px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 14px;
+  background: var(--apple-bg-secondary);
+  color: var(--apple-text);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius);
   cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
+  font-size: 15px;
 }
 
 .close-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--apple-bg);
 }
 </style>

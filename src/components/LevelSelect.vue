@@ -191,13 +191,12 @@ onMounted(() => {
 
 <style scoped>
 .level-select {
-  width: 100%;
-  height: 100%;
+  min-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #0a0a1a 100%);
-  padding: 20px;
+  background: var(--apple-bg, #fbfbfd);
+  padding: var(--apple-space-xl) var(--apple-space-md);
   overflow-y: auto;
 }
 
@@ -207,76 +206,75 @@ onMounted(() => {
 }
 
 .title {
-  font-size: 48px;
-  font-weight: bold;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   text-align: center;
-  color: #fff;
-  margin-bottom: 40px;
+  color: var(--apple-text, #1d1d1f);
+  margin-bottom: var(--apple-space-xl);
 }
 
 .game-types-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 25px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--apple-space-lg);
+  margin-bottom: var(--apple-space-xl);
 }
 
 .sub-levels-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--apple-space-md);
+  margin-bottom: var(--apple-space-xl);
 }
 
 .sub-level-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: var(--apple-space-lg);
 }
 
 .back-to-games-btn {
-  margin-bottom: 20px;
+  margin-bottom: var(--apple-space-md);
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+  background: transparent;
+  color: var(--apple-link);
+  border: none;
+  border-radius: var(--apple-radius);
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.3s;
+  font-size: 15px;
 }
 
 .back-to-games-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  text-decoration: underline;
 }
 
 .subtitle {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 18px;
-  margin-top: 10px;
+  color: var(--apple-text-secondary);
+  font-size: 17px;
+  margin-top: var(--apple-space-sm);
 }
 
 .game-type-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 30px;
+  background: var(--apple-bg-tertiary, #fff);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius-lg);
+  padding: var(--apple-space-xl);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: box-shadow var(--apple-duration), transform var(--apple-duration);
   overflow: hidden;
+  box-shadow: var(--apple-shadow-sm);
 }
 
 .game-type-card:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #64c8ff;
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(100, 200, 255, 0.2);
+  box-shadow: var(--apple-shadow);
+  transform: translateY(-2px);
 }
 
 .game-icon {
-  font-size: 64px;
+  font-size: 48px;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: var(--apple-space-md);
 }
 
 .game-info {
@@ -284,65 +282,63 @@ onMounted(() => {
 }
 
 .game-name {
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-sm);
 }
 
 .game-desc {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 15px;
+  font-size: 15px;
+  color: var(--apple-text-secondary);
+  margin-bottom: var(--apple-space-md);
   line-height: 1.4;
 }
 
 .game-stats {
   display: flex;
   justify-content: center;
-  gap: 15px;
 }
 
 .total-stars {
-  color: #ffd700;
-  font-size: 18px;
-  font-weight: bold;
+  color: var(--apple-text-tertiary);
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .sub-level-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 15px;
-  padding: 20px;
+  background: var(--apple-bg-tertiary, #fff);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius);
+  padding: var(--apple-space-lg);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: box-shadow var(--apple-duration), border-color var(--apple-duration);
   overflow: hidden;
   text-align: center;
+  box-shadow: var(--apple-shadow-sm);
 }
 
 .sub-level-card:hover:not(.locked) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #64c8ff;
-  transform: translateY(-3px);
-  box-shadow: 0 5px 20px rgba(100, 200, 255, 0.2);
+  box-shadow: var(--apple-shadow);
+  border-color: var(--apple-link);
 }
 
 .sub-level-card.completed {
-  border-color: #ffd700;
-  background: rgba(255, 215, 0, 0.1);
+  border-color: rgba(52, 199, 89, 0.4);
+  background: rgba(52, 199, 89, 0.04);
 }
 
 .sub-level-card.locked {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
 .sub-level-number {
-  font-size: 32px;
-  font-weight: bold;
-  color: #64c8ff;
-  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--apple-link);
+  margin-bottom: var(--apple-space-sm);
 }
 
 .sub-level-content {
@@ -350,152 +346,87 @@ onMounted(() => {
 }
 
 .sub-level-name {
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--apple-text);
+  margin-bottom: var(--apple-space-xs);
 }
 
 .sub-level-desc {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--apple-text-secondary);
+  margin-bottom: var(--apple-space-sm);
   line-height: 1.3;
 }
 
 .sub-level-meta {
-  margin-bottom: 10px;
+  margin-bottom: var(--apple-space-sm);
+}
+
+.difficulty {
+  padding: 4px 10px;
+  border-radius: var(--apple-radius-sm);
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .stars-display {
   display: flex;
   justify-content: center;
-  gap: 5px;
-  margin-top: 10px;
+  gap: 2px;
+  margin-top: var(--apple-space-sm);
 }
 
 .star {
-  font-size: 16px;
-  opacity: 0.3;
-  transition: all 0.3s;
+  font-size: 14px;
+  opacity: 0.25;
 }
 
 .star.filled {
   opacity: 1;
-  transform: scale(1.2);
 }
 
-.level-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 30px;
-  cursor: pointer;
-  transition: all 0.3s;
-  overflow: hidden;
-}
-
-.level-card:hover:not(.locked) {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: #64c8ff;
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(100, 200, 255, 0.2);
-}
-
-.level-card.locked {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.level-icon {
-  font-size: 64px;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.level-info {
-  text-align: center;
-}
-
-.level-name {
-  font-size: 24px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 10px;
-}
-
-.level-desc {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.7);
-  margin-bottom: 15px;
-  line-height: 1.4;
-}
-
-.level-meta {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-}
-
-.difficulty {
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.difficulty.easy {
-  background: rgba(74, 222, 128, 0.2);
-  color: #4ade80;
-}
-
-.difficulty.medium {
-  background: rgba(255, 217, 61, 0.2);
-  color: #ffd93d;
-}
-
-.difficulty.hard {
-  background: rgba(239, 69, 69, 0.2);
-  color: #ef4444;
-}
-
+.level-card,
+.level-icon,
+.level-info,
+.level-name,
+.level-desc,
+.level-meta,
 .duration {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 14px;
+  display: none;
 }
 
 .lock-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: inherit;
 }
 
 .lock-icon {
-  font-size: 48px;
+  font-size: 32px;
+  opacity: 0.6;
 }
 
 .back-btn {
   display: block;
   margin: 0 auto;
-  padding: 15px 40px;
-  font-size: 18px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 30px;
+  padding: 14px 32px;
+  font-size: 17px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--apple-text-secondary);
+  border: 1px solid var(--apple-border);
+  border-radius: var(--apple-radius-xl);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: background var(--apple-duration), color var(--apple-duration);
 }
 
 .back-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: #64c8ff;
+  background: var(--apple-bg-secondary);
+  color: var(--apple-text);
 }
 </style>

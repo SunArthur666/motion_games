@@ -1,0 +1,64 @@
+/**
+ * Apple-inspired minimal design system
+ * Ref: apple.com – clean, spacious, -apple-system, subtle shadows
+ */
+
+:root {
+  /* Surfaces */
+  --apple-bg: #fbfbfd;
+  --apple-bg-secondary: #f5f5f7;
+  --apple-bg-tertiary: #ffffff;
+  --apple-bg-dark: #1d1d1f;
+
+  /* Text */
+  --apple-text: #1d1d1f;
+  --apple-text-secondary: #6e6e73;
+  --apple-text-tertiary: #86868b;
+  --apple-text-inverse: #f5f5f7;
+
+  /* Brand */
+  --apple-link: #0071e3;
+  --apple-link-hover: #0077ed;
+  --apple-blue: #0071e3;
+  --apple-green: #34c759;
+  --apple-red: #ff3b30;
+  --apple-orange: #ff9500;
+
+  /* Borders & shadows */
+  --apple-border: rgba(0, 0, 0, 0.06);
+  --apple-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --apple-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  --apple-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.12);
+
+  /* Typography */
+  --apple-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", sans-serif;
+  --apple-title: 600;
+  --apple-body: 400;
+  --apple-caption: 400;
+
+  /* Spacing */
+  --apple-space-xs: 4px;
+  --apple-space-sm: 8px;
+  --apple-space-md: 16px;
+  --apple-space-lg: 24px;
+  --apple-space-xl: 40px;
+  --apple-space-2xl: 64px;
+
+  /* Radius */
+  --apple-radius-sm: 8px;
+  --apple-radius: 12px;
+  --apple-radius-lg: 18px;
+  --apple-radius-xl: 22px;
+  --apple-radius-full: 980px;
+
+  /* Transitions */
+  --apple-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --apple-duration: 0.3s;
+}
+
+/* Game canvas / fullscreen overlay stays dark for camera feed */
+.app-container.is-playing,
+.game-container {
+  --apple-bg: #000000;
+  --apple-bg-secondary: #0a0a0a;
+}
