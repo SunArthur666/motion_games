@@ -224,7 +224,7 @@ import FitnessBoxingLevel from '@/levels/FitnessBoxingLevel.vue'
 import RingFitLevel from '@/levels/RingFitLevel.vue'
 import SportsTennisLevel from '@/levels/SportsTennisLevel.vue'
 
-const emit = defineEmits(['game-over'])
+const emit = defineEmits(['game-over', 'show-pause-menu'])
 
 const gameStore = useGameStore()
 const isDev = import.meta.env.DEV
@@ -554,6 +554,7 @@ function togglePause() {
     gameStore.resumeGame()
   } else {
     gameStore.pauseGame()
+    emit('show-pause-menu')
   }
 }
 

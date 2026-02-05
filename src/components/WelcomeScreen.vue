@@ -7,18 +7,57 @@
         <p class="game-subtitle">全身互动，健康娱乐</p>
       </div>
 
+      <!-- 账号 / 匿名：主页显眼入口 -->
+      <section class="section account-section">
+        <h2 class="section-title">账号</h2>
+        <div class="account-actions">
+          <button
+            class="account-btn primary"
+            @click="showUserProfile = true"
+          >
+            <span class="account-icon">👤</span>
+            <span>{{ gameStore.currentUser ? `已登录：${gameStore.currentUser}` : '账号登录' }}</span>
+          </button>
+          <button
+            v-if="gameStore.currentUser"
+            class="account-btn secondary"
+            @click="handleAnonymousPlay"
+          >
+            <span class="account-icon">🎮</span>
+            <span>切换匿名游玩</span>
+          </button>
+          <p v-else class="account-hint">匿名游玩不保存进度，直接点「开始游戏」即可</p>
+        </div>
+      </section>
+
       <div class="features">
         <div class="feature-item">
-          <span class="feature-icon">🎯</span>
-          <span class="feature-text">捕捉色彩</span>
+          <span class="feature-icon">🎨</span>
+          <span class="feature-text">色彩大作战</span>
         </div>
         <div class="feature-item">
           <span class="feature-icon">🏃</span>
-          <span class="feature-text">躲避障碍</span>
+          <span class="feature-text">障碍躲避</span>
         </div>
         <div class="feature-item">
           <span class="feature-icon">🦸</span>
-          <span class="feature-text">模仿姿势</span>
+          <span class="feature-text">姿势临摹</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🔢</span>
+          <span class="feature-text">数字识别</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🥊</span>
+          <span class="feature-text">有氧拳击</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">💪</span>
+          <span class="feature-text">健身环</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🎾</span>
+          <span class="feature-text">运动网球</span>
         </div>
       </div>
 
@@ -135,6 +174,10 @@ function handleUserLogin(username) {
   gameStore.setCurrentUser(username)
 }
 
+function handleAnonymousPlay() {
+  gameStore.setCurrentUser(null)
+}
+
 const difficultyModes = Object.values(USER_DIFFICULTY_MODES)
 const currentDifficultyDesc = computed(() => {
   const mode = USER_DIFFICULTY_MODES[gameStore.userDifficulty]
@@ -177,6 +220,7 @@ watch(performanceMode, (mode) => {
   max-width: 580px;
   width: 100%;
   text-align: center;
+  padding-bottom: 48px;
 }
 
 .logo-section {
@@ -201,6 +245,59 @@ watch(performanceMode, (mode) => {
   font-size: 21px;
   font-weight: 400;
   color: var(--apple-text-secondary);
+}
+
+.account-section {
+  margin-bottom: var(--apple-space-xl);
+}
+
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--apple-space-md);
+}
+
+.account-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--apple-space-sm);
+  padding: 14px 28px;
+  font-size: 17px;
+  font-weight: 500;
+  border-radius: var(--apple-radius-xl);
+  border: 1px solid var(--apple-border);
+  background: var(--apple-bg-tertiary);
+  color: var(--apple-text);
+  cursor: pointer;
+  transition: background var(--apple-duration), border-color var(--apple-duration), transform var(--apple-duration);
+}
+
+.account-btn.primary {
+  background: var(--apple-link, #0071e3);
+  color: #fff;
+  border-color: var(--apple-link);
+}
+
+.account-btn.primary:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.account-btn.secondary:hover {
+  background: var(--apple-bg-secondary);
+  border-color: var(--apple-link);
+}
+
+.account-icon {
+  font-size: 22px;
+}
+
+.account-hint {
+  font-size: 14px;
+  color: var(--apple-text-secondary);
+  margin-top: 4px;
 }
 
 .features {

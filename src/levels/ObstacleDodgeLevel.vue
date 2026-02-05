@@ -38,7 +38,7 @@ const score = ref(0)
 const lives = ref(3)
 const isGameOver = ref(false)
 const elapsedTime = ref(0)
-const survivalTimer = ref(null)
+let survivalTimer = null
 
 // 玩家状态
 const playerPosition = ref({ x: 0.5, y: 0.5 }) // 归一化坐标

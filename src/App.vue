@@ -1,5 +1,11 @@
 <template>
-  <div class="app-container" :class="{ 'is-playing': gameState === 'playing' }">
+  <div
+    class="app-container"
+    :class="{
+      'is-playing': gameState === 'playing',
+      'can-scroll': gameState === 'welcome' || gameState === 'level-select'
+    }"
+  >
     <!-- 欢迎界面 -->
     <WelcomeScreen v-if="gameState === 'welcome'" @start="showPositionGuide" @mouseMode="showMouseExperience" />
 
@@ -17,10 +23,19 @@
     <LevelSelect v-else-if="gameState === 'level-select'" @select="handleLevelSelect" />
 
     <!-- 游戏主界面 -->
-    <GameContainer v-else-if="gameState === 'playing'" @game-over="handleGameOver" />
+    <GameContainer
+      v-else-if="gameState === 'playing'"
+      @game-over="handleGameOver"
+      @show-pause-menu="showPauseMenu = true"
+    />
 
     <!-- 暂停/设置界面 -->
-    <PauseMenu v-if="showPauseMenu" @restart="handleRestart" @exit="handleExit" />
+    <PauseMenu
+      v-if="showPauseMenu"
+      @close="showPauseMenu = false"
+      @restart="handleRestart"
+      @exit="handleExit"
+    />
 
     <!-- 游戏结束界面 -->
     <GameOver v-if="gameState === 'game-over'" :result="gameResult" @action="handleGameOverAction" />
@@ -211,6 +226,12 @@ watch([() => gameStore.isMirrored, () => gameStore.performanceMode, () => gameSt
   background: var(--apple-bg, #fbfbfd);
   overflow: hidden;
   transition: background var(--apple-duration) var(--apple-ease);
+}
+
+.app-container.can-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .app-container.is-playing {
