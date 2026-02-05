@@ -133,7 +133,15 @@ function close() {
 }
 
 function getGameName(gameType) {
-  const names = { 1: '色彩大作战', 2: '障碍躲避', 3: '姿势临摹' }
+  const names = {
+    1: '色彩大作战',
+    2: '障碍躲避',
+    3: '姿势临摹',
+    4: '数字识别',
+    5: '有氧拳击',
+    6: '健身环',
+    7: '运动网球'
+  }
   return names[gameType] || '未知游戏'
 }
 

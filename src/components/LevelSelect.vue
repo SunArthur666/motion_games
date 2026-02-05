@@ -127,6 +127,27 @@ const gameTypes = [
     icon: '🔢',
     description: '识别数字，拍碎正确的数字气球！',
     color: '#ffd93d'
+  },
+  {
+    id: 5,
+    name: '有氧拳击',
+    icon: '🥊',
+    description: '左右出拳击打目标，节奏健身',
+    color: '#e74c3c'
+  },
+  {
+    id: 6,
+    name: '健身环',
+    icon: '💪',
+    description: '原地跑步 + 深蹲挤压攻击敌人',
+    color: '#27ae60'
+  },
+  {
+    id: 7,
+    name: '运动网球',
+    icon: '🎾',
+    description: '用手当球拍，对打接球',
+    color: '#3498db'
   }
 ]
 

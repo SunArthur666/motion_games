@@ -37,7 +37,7 @@
         </div>
 
         <!-- FPS显示（开发模式） -->
-        <div v-if="import.meta.env.DEV" class="fps-display">
+        <div v-if="isDev" class="fps-display">
           <span class="label">FPS</span>
           <span class="value" :class="{ 'fps-low': fps < 30, 'fps-good': fps >= 50 }">
             {{ fps }}
@@ -128,6 +128,42 @@
       @encouragement="handleEncouragement"
     />
 
+    <FitnessBoxingLevel
+      v-if="gameStore.currentLevel === 5"
+      :landmarks="currentLandmarks"
+      :canvas-width="canvasWidth"
+      :canvas-height="canvasHeight"
+      :game-type="gameStore.currentLevel"
+      :sub-level="gameStore.currentSubLevel"
+      @collision="handleCollision"
+      @level-complete="handleLevelComplete"
+      @level-started="handleLevelStarted"
+    />
+
+    <RingFitLevel
+      v-if="gameStore.currentLevel === 6"
+      :landmarks="currentLandmarks"
+      :canvas-width="canvasWidth"
+      :canvas-height="canvasHeight"
+      :game-type="gameStore.currentLevel"
+      :sub-level="gameStore.currentSubLevel"
+      @collision="handleCollision"
+      @level-complete="handleLevelComplete"
+      @level-started="handleLevelStarted"
+    />
+
+    <SportsTennisLevel
+      v-if="gameStore.currentLevel === 7"
+      :landmarks="currentLandmarks"
+      :canvas-width="canvasWidth"
+      :canvas-height="canvasHeight"
+      :game-type="gameStore.currentLevel"
+      :sub-level="gameStore.currentSubLevel"
+      @collision="handleCollision"
+      @level-complete="handleLevelComplete"
+      @level-started="handleLevelStarted"
+    />
+
     <!-- 粒子画布 -->
     <canvas ref="particleCanvas" class="particle-canvas"></canvas>
 
@@ -184,10 +220,14 @@ import PowerUpDisplay from '@/components/PowerUpDisplay.vue'
 import ObstacleDodgeLevel from '@/levels/ObstacleDodgeLevel.vue'
 import PoseMimicryLevel from '@/levels/PoseMimicryLevel.vue'
 import NumberRecognitionLevel from '@/levels/NumberRecognitionLevel.vue'
+import FitnessBoxingLevel from '@/levels/FitnessBoxingLevel.vue'
+import RingFitLevel from '@/levels/RingFitLevel.vue'
+import SportsTennisLevel from '@/levels/SportsTennisLevel.vue'
 
 const emit = defineEmits(['game-over'])
 
 const gameStore = useGameStore()
+const isDev = import.meta.env.DEV
 
 const videoElement = ref(null)
 const gameCanvas = ref(null)
@@ -352,7 +392,8 @@ function handleCollision(event) {
       gameStore.loseLife()
       break
     case 'hit':
-      gameStore.loseLife()
+      // 仅障碍躲避中“被撞”扣命；网球“击中球”不扣命
+      if (gameStore.currentLevel === 2) gameStore.loseLife()
       break
     case 'game-over':
       // 显示游戏结束界面
@@ -553,9 +594,13 @@ onMounted(async () => {
   const levelHints = [
     '找到红色！',
     '躲避障碍！',
-    '模仿姿势！'
+    '模仿姿势！',
+    '拍数字气球！',
+    '左拳左、右拳右！',
+    '跑步+深蹲攻击！',
+    '用手当球拍接球！'
   ]
-  currentPrompt.value = levelHints[gameStore.currentLevel - 1]
+  currentPrompt.value = levelHints[gameStore.currentLevel - 1] || '加油！'
 })
 
 onUnmounted(() => {

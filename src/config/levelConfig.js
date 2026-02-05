@@ -100,6 +100,16 @@ export function applyDifficultyAdjustments(levelConfig, userDifficulty) {
   if (config.spawnInterval) config.spawnInterval *= adj.spawnIntervalMultiplier
   if (config.targetCount) config.targetCount = Math.max(3, Math.floor(config.targetCount * adj.targetReduction))
   if (config.matchThreshold) config.matchThreshold = Math.max(0.5, config.matchThreshold - adj.matchThresholdReduction)
+  // 有氧拳击
+  if (config.targetLifetime) config.targetLifetime = Math.floor(config.targetLifetime * (adj.spawnIntervalMultiplier > 1 ? 1.15 : 1))
+  // 健身环
+  if (config.runStepsRequired) config.runStepsRequired = Math.max(5, Math.floor(config.runStepsRequired * adj.targetReduction))
+  if (config.enemyCount) config.enemyCount = Math.max(1, Math.floor(config.enemyCount * adj.targetReduction))
+  if (config.squatsPerEnemy && adj.forgivingMode) config.squatsPerEnemy = Math.max(2, config.squatsPerEnemy - 1)
+  // 运动网球
+  if (config.rallyTarget) config.rallyTarget = Math.max(3, Math.floor(config.rallyTarget * adj.targetReduction))
+  if (config.ballSpeed) config.ballSpeed *= adj.speedMultiplier
+  if (config.paddleWidth) config.paddleWidth = Math.floor(config.paddleWidth * (adj.forgivingMode ? 1.2 : 1))
 
   config.scoreMultiplier = (config.scoreMultiplier || 1) * adj.scoreMultiplier
   config.hintEnabled = adj.hintEnabled
@@ -782,6 +792,195 @@ export const NUMBER_RECOGNITION_LEVELS = [
 ]
 
 /**
+ * 有氧拳击关卡配置（灵感：Fitness Boxing）
+ * 左右出拳击打目标，节奏与命中率
+ */
+export const FITNESS_BOXING_LEVELS = [
+  {
+    id: 'boxing-1',
+    gameType: 5,
+    subLevel: 1,
+    name: '左右直拳',
+    description: '左拳打左边、右拳打右边，跟着节奏来～',
+    difficulty: 'easy',
+    icon: '🥊',
+    config: {
+      targetCount: 12,
+      spawnInterval: 1800,
+      targetLifetime: 2500,
+      hitRadius: 90,
+      lives: 5,
+      scoreMultiplier: 1.0
+    },
+    stars: { 3: { score: 800, time: null, accuracy: 0.8 }, 2: { score: 500, time: null, accuracy: 0.6 }, 1: { score: 250, time: null, accuracy: 0.4 } },
+    unlocked: true
+  },
+  {
+    id: 'boxing-2',
+    gameType: 5,
+    subLevel: 2,
+    name: '组合拳',
+    description: '左右交替更快，锻炼反应',
+    difficulty: 'easy',
+    icon: '🥊',
+    config: {
+      targetCount: 18,
+      spawnInterval: 1400,
+      targetLifetime: 2000,
+      hitRadius: 80,
+      lives: 4,
+      scoreMultiplier: 1.2
+    },
+    stars: { 3: { score: 1200, time: null, accuracy: 0.75 }, 2: { score: 750, time: null, accuracy: 0.55 }, 1: { score: 400, time: null, accuracy: 0.4 } },
+    unlocked: false
+  },
+  {
+    id: 'boxing-3',
+    gameType: 5,
+    subLevel: 3,
+    name: '拳击达人',
+    description: '高节奏连续出拳',
+    difficulty: 'medium',
+    icon: '🥊',
+    config: {
+      targetCount: 25,
+      spawnInterval: 1000,
+      targetLifetime: 1600,
+      hitRadius: 70,
+      lives: 3,
+      scoreMultiplier: 1.5
+    },
+    stars: { 3: { score: 2000, time: null, accuracy: 0.75 }, 2: { score: 1200, time: null, accuracy: 0.6 }, 1: { score: 600, time: null, accuracy: 0.45 } },
+    unlocked: false
+  }
+]
+
+/**
+ * 健身环关卡配置（灵感：Ring Fit Adventure）
+ * 原地跑步 + 深蹲攻击
+ */
+export const RING_FIT_LEVELS = [
+  {
+    id: 'ring-1',
+    gameType: 6,
+    subLevel: 1,
+    name: '慢跑与深蹲',
+    description: '原地抬腿跑步，遇到敌人就深蹲挤压！',
+    difficulty: 'easy',
+    icon: '💪',
+    config: {
+      runStepsRequired: 15,
+      enemyCount: 2,
+      squatsPerEnemy: 3,
+      squatHoldFrames: 15,
+      lives: 5,
+      scoreMultiplier: 1.0
+    },
+    stars: { 3: { score: 600, time: null }, 2: { score: 400, time: null }, 1: { score: 200, time: null } },
+    unlocked: true
+  },
+  {
+    id: 'ring-2',
+    gameType: 6,
+    subLevel: 2,
+    name: '加长跑道',
+    description: '多跑几步，多打几个敌人',
+    difficulty: 'easy',
+    icon: '💪',
+    config: {
+      runStepsRequired: 25,
+      enemyCount: 3,
+      squatsPerEnemy: 3,
+      squatHoldFrames: 12,
+      lives: 4,
+      scoreMultiplier: 1.2
+    },
+    stars: { 3: { score: 1000, time: null }, 2: { score: 650, time: null }, 1: { score: 350, time: null } },
+    unlocked: false
+  },
+  {
+    id: 'ring-3',
+    gameType: 6,
+    subLevel: 3,
+    name: '环游冒险',
+    description: '长跑 + 多轮深蹲攻击',
+    difficulty: 'medium',
+    icon: '💪',
+    config: {
+      runStepsRequired: 40,
+      enemyCount: 4,
+      squatsPerEnemy: 4,
+      squatHoldFrames: 10,
+      lives: 3,
+      scoreMultiplier: 1.5
+    },
+    stars: { 3: { score: 1800, time: null }, 2: { score: 1100, time: null }, 1: { score: 550, time: null } },
+    unlocked: false
+  }
+]
+
+/**
+ * 运动网球关卡配置（灵感：Nintendo Switch Sports）
+ * 用手当球拍接球
+ */
+export const SPORTS_TENNIS_LEVELS = [
+  {
+    id: 'tennis-1',
+    gameType: 7,
+    subLevel: 1,
+    name: '轻松对打',
+    description: '用手当球拍，把球打回去～',
+    difficulty: 'easy',
+    icon: '🎾',
+    config: {
+      ballSpeed: 4,
+      rallyTarget: 8,
+      paddleWidth: 120,
+      lives: 5,
+      scoreMultiplier: 1.0
+    },
+    stars: { 3: { score: 500, time: null }, 2: { score: 300, time: null }, 1: { score: 150, time: null } },
+    unlocked: true
+  },
+  {
+    id: 'tennis-2',
+    gameType: 7,
+    subLevel: 2,
+    name: '加速球',
+    description: '球速变快，连续对打',
+    difficulty: 'easy',
+    icon: '🎾',
+    config: {
+      ballSpeed: 5.5,
+      rallyTarget: 12,
+      paddleWidth: 100,
+      lives: 4,
+      scoreMultiplier: 1.2
+    },
+    stars: { 3: { score: 800, time: null }, 2: { score: 500, time: null }, 1: { score: 250, time: null } },
+    unlocked: false
+  },
+  {
+    id: 'tennis-3',
+    gameType: 7,
+    subLevel: 3,
+    name: '网球高手',
+    description: '快速来回，考验反应',
+    difficulty: 'medium',
+    icon: '🎾',
+    config: {
+      ballSpeed: 7,
+      rallyTarget: 18,
+      paddleWidth: 85,
+      lives: 3,
+      scoreMultiplier: 1.5
+    },
+    stars: { 3: { score: 1200, time: null }, 2: { score: 750, time: null }, 1: { score: 400, time: null } },
+    unlocked: false
+  }
+]
+
+/**
  * 获取所有关卡配置
  */
 export function getAllLevels() {
@@ -789,7 +988,10 @@ export function getAllLevels() {
     ...COLOR_BATTLE_LEVELS,
     ...OBSTACLE_DODGE_LEVELS,
     ...POSE_MIMICRY_LEVELS,
-    ...NUMBER_RECOGNITION_LEVELS
+    ...NUMBER_RECOGNITION_LEVELS,
+    ...FITNESS_BOXING_LEVELS,
+    ...RING_FIT_LEVELS,
+    ...SPORTS_TENNIS_LEVELS
   ]
 }
 
@@ -806,6 +1008,12 @@ export function getLevelsByGameType(gameType) {
       return POSE_MIMICRY_LEVELS
     case 4:
       return NUMBER_RECOGNITION_LEVELS
+    case 5:
+      return FITNESS_BOXING_LEVELS
+    case 6:
+      return RING_FIT_LEVELS
+    case 7:
+      return SPORTS_TENNIS_LEVELS
     default:
       return []
   }
