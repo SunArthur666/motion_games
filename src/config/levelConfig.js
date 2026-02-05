@@ -806,25 +806,27 @@ export function getLevelConfig(gameType, subLevel) {
 export function calculateStars(levelConfig, result) {
   const { score, time, accuracy, completed } = result
   const stars = levelConfig.stars
+  const isObstacle = levelConfig.gameType === 2
 
-  // 检查3星条件
+  // 障碍躲避：time 为存活时间，需 time >= stars[n].time；其他关卡：time 为用时，需 time <= stars[n].time
+  const timeOk = (starReq, t) => {
+    if (!starReq || !starReq.time || t == null) return true
+    return isObstacle ? t >= starReq.time : (t <= starReq.time)
+  }
+
   if (stars[3]) {
-    let meets3Star = true
-    if (stars[3].score && score < stars[3].score) meets3Star = false
-    if (stars[3].time && time && time > stars[3].time) meets3Star = false
-    if (stars[3].accuracy && accuracy < stars[3].accuracy) meets3Star = false
-    if (meets3Star) return 3
+    let ok = true
+    if (stars[3].score && score < stars[3].score) ok = false
+    if (!timeOk(stars[3], time)) ok = false
+    if (stars[3].accuracy != null && (accuracy == null || accuracy < stars[3].accuracy)) ok = false
+    if (ok) return 3
   }
-
-  // 检查2星条件
   if (stars[2]) {
-    let meets2Star = true
-    if (stars[2].score && score < stars[2].score) meets2Star = false
-    if (stars[2].time && time && time > stars[2].time) meets2Star = false
-    if (stars[2].accuracy && accuracy < stars[2].accuracy) meets2Star = false
-    if (meets2Star) return 2
+    let ok = true
+    if (stars[2].score && score < stars[2].score) ok = false
+    if (!timeOk(stars[2], time)) ok = false
+    if (stars[2].accuracy != null && (accuracy == null || accuracy < stars[2].accuracy)) ok = false
+    if (ok) return 2
   }
-
-  // 默认1星（完成关卡）
   return 1
 }

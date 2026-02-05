@@ -9,6 +9,7 @@ import {
   ENCOURAGEMENT_CONFIG,
   POWER_UPS
 } from '@/config/levelConfig'
+import { getAchievementProgress } from '@/config/achievements'
 
 export const useGameStore = defineStore('game', () => {
   // 游戏状态
@@ -39,7 +40,7 @@ export const useGameStore = defineStore('game', () => {
     totalCorrect: 0,
     totalWrong: 0,
     bestStreak: 0,
-    totalPlayTime: 0
+    totalPlayTime: 0  // 总游戏时长（毫秒），由 endGame 时累加
   })
   
   // 关卡进度和星级
@@ -48,6 +49,10 @@ export const useGameStore = defineStore('game', () => {
     return Object.values(levelProgress.value).reduce((sum, progress) => {
       return sum + (progress.stars || 0)
     }, 0)
+  })
+
+  const achievementProgress = computed(() => {
+    return getAchievementProgress(statistics.value, levelProgress.value)
   })
 
   // 时间追踪
@@ -368,7 +373,10 @@ export const useGameStore = defineStore('game', () => {
   function endGame() {
     isPlaying.value = false
     if (sessionStartTime.value) {
-      totalPlayTime.value += Date.now() - sessionStartTime.value
+      const elapsed = Date.now() - sessionStartTime.value
+      totalPlayTime.value += elapsed
+      statistics.value.totalPlayTime = (statistics.value.totalPlayTime || 0) + elapsed
+      saveStatistics()
     }
   }
 
@@ -440,7 +448,7 @@ export const useGameStore = defineStore('game', () => {
     userDifficulty, streak, maxStreak, activePowerUps, collectedPowerUps, statistics,
     currentUser, showSkeleton,
     // Computed
-    shouldTakeBreak, totalStars, userDifficultyConfig,
+    shouldTakeBreak, totalStars, userDifficultyConfig, achievementProgress,
     // Actions
     startGame, pauseGame, resumeGame, endGame, addScore, loseLife,
     nextLevel, setSubLevel, takeBreak, updateSafetyZone, toggleMirror,

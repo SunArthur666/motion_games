@@ -89,6 +89,11 @@
         <span v-else>👤 用户设置</span>
       </div>
 
+      <!-- 数据统计 -->
+      <div class="stats-link" @click="showStatistics = true">
+        <span>📊 数据统计</span>
+      </div>
+
       <!-- 设置入口 -->
       <div class="settings-link" @click="showQuickSettings = true">
         <span>⚙️ 设置</span>
@@ -100,6 +105,12 @@
       v-if="showUserProfile"
       @close="showUserProfile = false"
       @login="handleUserLogin"
+    />
+
+    <!-- 数据统计弹窗 -->
+    <StatisticsPanel
+      v-if="showStatistics"
+      @close="showStatistics = false"
     />
 
     <!-- 快速设置弹窗 -->
@@ -139,12 +150,14 @@ import { ref, watch, computed, onMounted } from 'vue'
 import { useGameStore } from '@/stores/game'
 import { USER_DIFFICULTY_MODES } from '@/config/levelConfig'
 import UserProfile from '@/components/UserProfile.vue'
+import StatisticsPanel from '@/components/StatisticsPanel.vue'
 
 const emit = defineEmits(['start', 'mouseMode'])
 
 const gameStore = useGameStore()
 const showQuickSettings = ref(false)
 const showUserProfile = ref(false)
+const showStatistics = ref(false)
 const performanceMode = ref(gameStore.performanceMode)
 
 // 加载用户信息
@@ -381,6 +394,7 @@ watch(performanceMode, (mode) => {
 }
 
 .user-link,
+.stats-link,
 .settings-link {
   margin-top: 15px;
   color: rgba(255, 255, 255, 0.5);
@@ -390,6 +404,7 @@ watch(performanceMode, (mode) => {
 }
 
 .user-link:hover,
+.stats-link:hover,
 .settings-link:hover {
   color: #64c8ff;
 }

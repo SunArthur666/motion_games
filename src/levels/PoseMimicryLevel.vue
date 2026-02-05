@@ -8,22 +8,30 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useCollisionDetection } from '@/composables/useCollisionDetection'
 import { useSpeech } from '@/composables/useSpeech'
+import { useGameStore } from '@/stores/game'
+import { getLevelConfig, applyDifficultyAdjustments } from '@/config/levelConfig'
 import { POSES, getRandomPose, getPoseSequence } from '@/utils/posePresets'
 
 const props = defineProps({
-  landmarks: {
-    type: Array,
-    default: null
-  },
+  landmarks: { type: Array, default: null },
   canvasWidth: Number,
-  canvasHeight: Number
+  canvasHeight: Number,
+  gameType: { type: Number, default: 3 },
+  subLevel: { type: Number, default: 1 }
 })
 
-const emit = defineEmits(['collision'])
+const emit = defineEmits(['collision', 'level-complete'])
 
+const gameStore = useGameStore()
 const levelCanvas = ref(null)
 const { checkPoseMatch } = useCollisionDetection()
 const { speakPrompt, playSound } = useSpeech()
+
+const levelConfig = computed(() => {
+  const base = getLevelConfig(props.gameType, props.subLevel)
+  return base ? applyDifficultyAdjustments(base, gameStore.userDifficulty) : null
+})
+const gameConfig = computed(() => levelConfig.value?.config || {})
 
 // 游戏状态
 const currentPoseData = ref(null)
@@ -35,10 +43,9 @@ const score = ref(0)
 const completedPoses = ref([])
 const isCompleted = ref(false)
 
-// 配置
-const TIME_LIMIT = 30 // 每个姿势30秒
-const MATCH_THRESHOLD = 0.75 // 75%匹配度
-const DISPLAY_SCALE = 0.6 // 目标姿势显示缩放
+const TIME_LIMIT = 30
+const MATCH_THRESHOLD = computed(() => gameConfig.value.matchThreshold ?? 0.75)
+const DISPLAY_SCALE = 0.6
 
 let gameLoop = null
 let timerInterval = null
@@ -57,8 +64,11 @@ onUnmounted(() => {
 })
 
 function startGame() {
-  // 生成姿势序列
-  poseSequence.value = getPoseSequence(5, 2) // 5个姿势，难度1-2
+  const count = gameConfig.value.poseCount ?? 5
+  const complexity = (gameConfig.value.poseComplexity === 'expert' && 3) ||
+    (gameConfig.value.poseComplexity === 'complex' && 2) ||
+    (gameConfig.value.poseComplexity === 'medium' && 2) || 1
+  poseSequence.value = getPoseSequence(count, complexity)
   currentIndex.value = 0
   score.value = 0
   completedPoses.value = []
@@ -236,10 +246,9 @@ function checkMatch() {
   if (!currentPoseData.value || !props.landmarks) return
 
   const targetPose = currentPoseData.value.pose()
-  const result = checkPoseMatch(props.landmarks, targetPose, MATCH_THRESHOLD)
-
+  const threshold = typeof MATCH_THRESHOLD.value === 'number' ? MATCH_THRESHOLD.value : 0.75
+  const result = checkPoseMatch(props.landmarks, targetPose, threshold)
   matchProgress.value = result.ratio
-
   if (result.isMatch && !isCompleted.value) {
     handleMatch()
   }
@@ -298,15 +307,29 @@ function gameComplete() {
 
   const totalScore = completedPoses.value.reduce((sum, p) => sum + (p.score || 0), 0)
   const completedCount = completedPoses.value.filter(p => !p.failed).length
+  const total = poseSequence.value.length
+  const accuracy = total ? completedCount / total : 0
 
-  emit('collision', {
-    type: 'game-complete',
-    data: {
+  if (levelConfig.value) {
+    const result = {
       score: totalScore,
+      time: null,
+      accuracy,
       completed: completedCount,
-      total: poseSequence.value.length
+      total
     }
-  })
+    const stars = gameStore.completeLevel(props.gameType, props.subLevel, result)
+    emit('level-complete', {
+      stars,
+      result,
+      levelConfig: levelConfig.value
+    })
+  } else {
+    emit('collision', {
+      type: 'game-complete',
+      data: { score: totalScore, completed: completedCount, total }
+    })
+  }
 
   speakPrompt(`游戏完成！完成了${completedCount}个姿势，得分${totalScore}！`)
 }

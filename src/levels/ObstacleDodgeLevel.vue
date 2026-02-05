@@ -8,27 +8,37 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useCollisionDetection } from '@/composables/useCollisionDetection'
 import { useSpeech } from '@/composables/useSpeech'
+import { useGameStore } from '@/stores/game'
+import { getLevelConfig, applyDifficultyAdjustments, calculateStars } from '@/config/levelConfig'
 
 const props = defineProps({
-  landmarks: {
-    type: Array,
-    default: null
-  },
+  landmarks: { type: Array, default: null },
   canvasWidth: Number,
-  canvasHeight: Number
+  canvasHeight: Number,
+  gameType: { type: Number, default: 2 },
+  subLevel: { type: Number, default: 1 }
 })
 
-const emit = defineEmits(['collision'])
+const emit = defineEmits(['collision', 'level-complete'])
 
+const gameStore = useGameStore()
 const levelCanvas = ref(null)
 const { pointInRect, pointInCircle } = useCollisionDetection()
 const { speakPrompt, playSound } = useSpeech()
+
+const levelConfig = computed(() => {
+  const base = getLevelConfig(props.gameType, props.subLevel)
+  return base ? applyDifficultyAdjustments(base, gameStore.userDifficulty) : null
+})
+const gameConfig = computed(() => levelConfig.value?.config || {})
 
 // 游戏状态
 const obstacles = ref([])
 const score = ref(0)
 const lives = ref(3)
 const isGameOver = ref(false)
+const elapsedTime = ref(0)
+const survivalTimer = ref(null)
 
 // 玩家状态
 const playerPosition = ref({ x: 0.5, y: 0.5 }) // 归一化坐标
@@ -50,7 +60,6 @@ let gameLoop = null
 let spawnTimeout = null
 let difficulty = 1
 
-// 初始化
 onMounted(() => {
   if (levelCanvas.value) {
     levelCanvas.value.width = props.canvasWidth
@@ -65,16 +74,27 @@ onUnmounted(() => {
 })
 
 function startGame() {
+  lives.value = gameStore.lives
+  elapsedTime.value = 0
+  const targetTime = gameConfig.value.targetTime ?? 30
+  if (survivalTimer) clearInterval(survivalTimer)
+  survivalTimer = setInterval(() => {
+    if (isGameOver.value) return
+    elapsedTime.value++
+    if (elapsedTime.value >= targetTime) {
+      completeLevel()
+    }
+  }, 1000)
   spawnObstacle()
   gameLoop = requestAnimationFrame(update)
 }
 
 function stopGame() {
-  if (gameLoop) {
-    cancelAnimationFrame(gameLoop)
-  }
-  if (spawnTimeout) {
-    clearTimeout(spawnTimeout)
+  if (gameLoop) cancelAnimationFrame(gameLoop)
+  if (spawnTimeout) clearTimeout(spawnTimeout)
+  if (survivalTimer) {
+    clearInterval(survivalTimer)
+    survivalTimer = null
   }
 }
 
@@ -82,15 +102,16 @@ function stopGame() {
 function spawnObstacle() {
   if (isGameOver.value) return
 
-  const types = ['low', 'high', 'wide']
+  const types = gameConfig.value.obstacleTypes || ['low', 'high']
   const type = types[Math.floor(Math.random() * types.length)]
 
+  const baseSpeed = gameConfig.value.obstacleSpeed ?? 3
   const obstacle = {
     id: Date.now() + Math.random(),
     type,
     x: Math.random() < 0.5 ? -100 : props.canvasWidth + 100,
     y: type === 'high' ? props.canvasHeight * 0.3 : props.canvasHeight * 0.6,
-    speed: 3 + difficulty * 0.5,
+    speed: baseSpeed + difficulty * 0.5,
     rotation: 0,
     rotationSpeed: (Math.random() - 0.5) * 0.1
   }
@@ -121,8 +142,8 @@ function spawnObstacle() {
 
   obstacles.value.push(obstacle)
 
-  // 下一个障碍物
-  const nextSpawn = Math.max(1000, 3000 - difficulty * 200)
+  const interval = gameConfig.value.spawnInterval ?? 2000
+  const nextSpawn = Math.max(800, interval - difficulty * 150)
   spawnTimeout = setTimeout(spawnObstacle, nextSpawn)
 }
 
@@ -259,6 +280,7 @@ function updateObstacles(ctx) {
     if (isOutOfBounds) {
       obstacles.value.splice(i, 1)
       score.value += 10
+      gameStore.addScore(10)
 
       // 难度递增
       if (score.value % 50 === 0) {
@@ -426,33 +448,46 @@ function checkCollisions() {
 
 // 处理碰撞
 function handleCollision(obstacle) {
-  lives.value--
+  const dead = gameStore.loseLife()
+  lives.value = gameStore.lives
   playSound('wrong')
-
-  // 移除障碍物
   obstacles.value = obstacles.value.filter(o => o.id !== obstacle.id)
 
-  if (lives.value <= 0) {
+  if (dead) {
     gameOver()
   } else {
-    emit('collision', {
-      type: 'hit',
-      data: { lives: lives.value }
-    })
+    emit('collision', { type: 'hit', data: { lives: lives.value } })
   }
+}
+
+// 通关
+function completeLevel() {
+  isGameOver.value = true
+  stopGame()
+  if (!levelConfig.value) return
+  const result = {
+    score: gameStore.score,
+    time: elapsedTime.value,
+    completed: true
+  }
+  const stars = gameStore.completeLevel(props.gameType, props.subLevel, result)
+  emit('level-complete', {
+    stars,
+    result,
+    levelConfig: levelConfig.value
+  })
+  speakPrompt(`通关！存活 ${elapsedTime.value} 秒！`)
 }
 
 // 游戏结束
 function gameOver() {
   isGameOver.value = true
   stopGame()
-
   emit('collision', {
     type: 'game-over',
-    data: { score: score.value }
+    data: { score: gameStore.score }
   })
-
-  speakPrompt('游戏结束！得分 ' + score.value)
+  speakPrompt('游戏结束！')
 }
 
 // 工具函数：圆角矩形

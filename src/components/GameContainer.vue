@@ -96,7 +96,10 @@
       :landmarks="currentLandmarks"
       :canvas-width="canvasWidth"
       :canvas-height="canvasHeight"
+      :game-type="gameStore.currentLevel"
+      :sub-level="gameStore.currentSubLevel"
       @collision="handleCollision"
+      @level-complete="handleLevelComplete"
     />
 
     <PoseMimicryLevel
@@ -104,7 +107,10 @@
       :landmarks="currentLandmarks"
       :canvas-width="canvasWidth"
       :canvas-height="canvasHeight"
+      :game-type="gameStore.currentLevel"
+      :sub-level="gameStore.currentSubLevel"
       @collision="handleCollision"
+      @level-complete="handleLevelComplete"
     />
 
     <NumberRecognitionLevel
