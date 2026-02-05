@@ -25,7 +25,7 @@ const props = defineProps({
   subLevel: { type: Number, default: 1 }
 })
 
-const emit = defineEmits(['collision', 'prompt', 'level-complete', 'encouragement'])
+const emit = defineEmits(['collision', 'prompt', 'level-complete', 'level-started', 'encouragement'])
 
 const gameStore = useGameStore()
 const levelCanvas = ref(null)
@@ -82,13 +82,17 @@ onUnmounted(() => {
   stopGame()
 })
 
+const hasHadFirstSuccess = ref(false)
+
 function startGame() {
   targetNumber.value = gameConfig.value.numbers[0]
   correctCount.value = 0
   wrongCount.value = 0
   streak.value = 0
+  hasHadFirstSuccess.value = false
   startTime.value = Date.now()
-  
+
+  emit('level-started')
   spawnInterval = setInterval(() => {
     spawnBalloon()
   }, gameConfig.value.spawnInterval || 2000)
@@ -263,7 +267,13 @@ function checkGameCollisions() {
         })
         playSound('correct')
 
-        sendEncouragement('correct', streak.value)
+        if (!hasHadFirstSuccess.value) {
+          hasHadFirstSuccess.value = true
+          const firstMsg = gameStore.getEncouragement('firstSuccess')
+          if (firstMsg) emit('encouragement', { type: 'correct', message: firstMsg, streak: streak.value })
+        } else {
+          sendEncouragement('correct', streak.value)
+        }
 
         if (correctCount.value >= gameConfig.value.targetCount) {
           completeLevel()

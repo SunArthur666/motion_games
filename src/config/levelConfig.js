@@ -30,21 +30,22 @@ export const DIFFICULTY_CONFIG = {
 /**
  * 用户难度选择配置
  * 用于调整整体游戏难度，防止小朋友产生挫败感
+ * 轻松模式针对 4-6 岁幼童做了专门优化
  */
 export const USER_DIFFICULTY_MODES = {
   easy: {
     id: 'easy',
     name: '轻松模式',
     icon: '🌟',
-    description: '适合初学者，更多生命，更慢速度',
+    description: '适合 4-6 岁，节奏慢、目标大、不扣生命',
     color: '#4ade80',
     adjustments: {
-      speedMultiplier: 0.6,
-      livesBonus: 3,
-      spawnIntervalMultiplier: 1.5,
-      targetReduction: 0.7,
-      matchThresholdReduction: 0.1,
-      scoreMultiplier: 0.8,
+      speedMultiplier: 0.55,
+      livesBonus: 4,
+      spawnIntervalMultiplier: 1.6,
+      targetReduction: 0.65,
+      matchThresholdReduction: 0.12,
+      scoreMultiplier: 0.85,
       hintEnabled: true,
       forgivingMode: true
     }
@@ -108,23 +109,39 @@ export function applyDifficultyAdjustments(levelConfig, userDifficulty) {
 }
 
 /**
- * 鼓励语配置
+ * 鼓励语配置（面向 5 岁左右幼童：简短、正向、不批评）
  */
 export const ENCOURAGEMENT_CONFIG = {
-  correct: ['太棒了！', '做得好！', '真厉害！', '继续加油！', '完美！', '你真聪明！', '好极了！', '真不错！'],
+  correct: [
+    '太棒了！', '好厉害！', '对啦！', '真棒！', '做得好！',
+    '哇，好棒！', '继续！', '加油！', '你好棒！', '拍到了！'
+  ],
   streak: {
-    3: ['连续3个！太棒了！', '三连击！', '厉害！'],
-    5: ['连续5个！你是高手！', '五连击！超级！', '哇！'],
-    10: ['10连击！无敌了！', '太强了！', '天才！']
+    3: ['连中三个！好棒！', '好厉害！', '继续加油！'],
+    5: ['五个啦！超级棒！', '哇！', '你太厉害了！'],
+    10: ['十个！你是小能手！', '太厉害了！', '棒棒哒！']
   },
-  wrong: ['没关系，再试一次！', '加油，你可以的！', '差一点点，继续！', '别灰心！', '慢慢来，不着急！'],
-  loseLife: ['别担心，还有机会！', '加油，你能做到！', '慢慢来，别着急！'],
-  gameOver: ['你已经很棒了！', '下次会更好的！', '每次都在进步！'],
+  wrong: [
+    '没关系，再试一次！', '下次就对了！', '慢慢来，不着急～',
+    '再拍拍看！', '加油，你可以的！', '差一点点哦，再试一下！',
+    '没事没事，再来！', '我们再来一次吧！'
+  ],
+  loseLife: [
+    '还有机会哦！', '没关系，再玩一次！', '加油，你可以的！',
+    '休息一下再玩吧！', '已经很棒啦！'
+  ],
+  gameOver: [
+    '你今天玩得很棒！', '下次我们再玩！', '休息一下再来吧！',
+    '你已经很厉害了！', '明天再一起玩！'
+  ],
   complete: {
-    1: ['完成了！继续努力！', '通关了！'],
-    2: ['太棒了！两颗星！', '优秀！'],
-    3: ['完美！三颗星！', '你是最棒的！', '天才！']
-  }
+    1: ['过关啦！好棒！', '完成啦！', '通关了，真厉害！'],
+    2: ['两颗星！好厉害！', '太棒了！', '你真棒！'],
+    3: ['三颗星！完美！', '你是最棒的！', '超级厉害！']
+  },
+  // 开场/首次成功（幼童正向引导）
+  welcome: ['一起来玩吧！', '准备好啦！', '开始吧！'],
+  firstSuccess: ['对啦！就是这样！', '拍到了！好棒！', '做得好！']
 }
 
 /**
@@ -143,31 +160,30 @@ export const POWER_UPS = {
  * 难度递增：速度、数量、颜色种类、时间限制
  */
 export const COLOR_BATTLE_LEVELS = [
+  // 幼童友好关卡（约 5 岁）：节奏慢、目标大、数量少、星级易拿
   {
     id: 'color-1',
     gameType: 1,
     subLevel: 1,
-    name: '初识颜色',
-    description: '认识基础颜色，慢慢来',
+    name: '拍拍红和蓝',
+    description: '只拍红色和蓝色的气球，慢慢来～',
     difficulty: 'easy',
     icon: '🎨',
-    // 游戏参数
     config: {
-      spawnInterval: 3000,        // 生成间隔（毫秒）
-      balloonSpeed: 1.5,          // 气球速度
-      balloonRadius: [50, 60],    // 气球大小范围
-      colors: ['red', 'blue'],    // 可用颜色（仅2种）
-      targetCount: 10,            // 目标数量
-      timeLimit: null,             // 时间限制（null=无限制）
-      frenzyThreshold: 5,          // 狂欢模式阈值
-      lives: 5,                    // 生命值
-      scoreMultiplier: 1.0         // 分数倍数
+      spawnInterval: 3800,
+      balloonSpeed: 1.0,
+      balloonRadius: [55, 68],
+      colors: ['red', 'blue'],
+      targetCount: 6,
+      timeLimit: null,
+      frenzyThreshold: 4,
+      lives: 6,
+      scoreMultiplier: 1.0
     },
-    // 星级评价标准
     stars: {
-      3: { score: 1000, time: null, accuracy: 0.9 },  // 3星：高分+高准确率
-      2: { score: 600, time: null, accuracy: 0.7 },   // 2星：中等分数+中等准确率
-      1: { score: 300, time: null, accuracy: 0.5 }    // 1星：基础分数
+      3: { score: 400, time: null, accuracy: 0.75 },
+      2: { score: 250, time: null, accuracy: 0.55 },
+      1: { score: 120, time: null, accuracy: 0.35 }
     },
     unlocked: true
   },
@@ -175,27 +191,27 @@ export const COLOR_BATTLE_LEVELS = [
     id: 'color-2',
     gameType: 1,
     subLevel: 2,
-    name: '三色挑战',
-    description: '增加绿色，提高速度',
+    name: '红蓝绿一起玩',
+    description: '多了一种绿色气球，试试看～',
     difficulty: 'easy',
     icon: '🎨',
     config: {
-      spawnInterval: 2500,
-      balloonSpeed: 2.0,
-      balloonRadius: [45, 55],
+      spawnInterval: 3200,
+      balloonSpeed: 1.3,
+      balloonRadius: [50, 62],
       colors: ['red', 'blue', 'green'],
-      targetCount: 15,
+      targetCount: 8,
       timeLimit: null,
-      frenzyThreshold: 5,
-      lives: 4,
-      scoreMultiplier: 1.2
+      frenzyThreshold: 4,
+      lives: 5,
+      scoreMultiplier: 1.1
     },
     stars: {
-      3: { score: 1500, time: null, accuracy: 0.85 },
-      2: { score: 900, time: null, accuracy: 0.7 },
-      1: { score: 450, time: null, accuracy: 0.5 }
+      3: { score: 550, time: null, accuracy: 0.7 },
+      2: { score: 350, time: null, accuracy: 0.5 },
+      1: { score: 180, time: null, accuracy: 0.35 }
     },
-    unlocked: false // 需要完成color-1解锁
+    unlocked: false
   },
   {
     id: 'color-3',
@@ -308,28 +324,29 @@ export const COLOR_BATTLE_LEVELS = [
  * 难度递增：障碍速度、密度、类型、移动模式
  */
 export const OBSTACLE_DODGE_LEVELS = [
+  // 幼童友好：慢速、少障碍、易拿星
   {
     id: 'obstacle-1',
     gameType: 2,
     subLevel: 1,
-    name: '基础躲避',
-    description: '简单的障碍，慢慢来',
+    name: '小障碍跳一跳',
+    description: '看到障碍就跳起来，不着急～',
     difficulty: 'easy',
     icon: '🏃',
     config: {
-      obstacleSpeed: 2.0,
-      spawnInterval: 2000,
-      obstacleTypes: ['low'],      // 仅低障碍
-      obstacleCount: 1,            // 同时最多1个
-      movePattern: 'straight',     // 直线移动
-      lives: 5,
-      targetTime: 30,              // 目标存活时间（秒）
+      obstacleSpeed: 1.4,
+      spawnInterval: 2800,
+      obstacleTypes: ['low'],
+      obstacleCount: 1,
+      movePattern: 'straight',
+      lives: 6,
+      targetTime: 25,
       scoreMultiplier: 1.0
     },
     stars: {
-      3: { time: 30, score: 500 },
-      2: { time: 20, score: 300 },
-      1: { time: 10, score: 150 }
+      3: { time: 25, score: 350 },
+      2: { time: 15, score: 200 },
+      1: { time: 8, score: 100 }
     },
     unlocked: true
   },
@@ -337,24 +354,24 @@ export const OBSTACLE_DODGE_LEVELS = [
     id: 'obstacle-2',
     gameType: 2,
     subLevel: 2,
-    name: '高低组合',
-    description: '出现高障碍，需要深蹲',
+    name: '有时要蹲下来',
+    description: '高的障碍蹲一下，矮的跳过去～',
     difficulty: 'easy',
     icon: '🏃',
     config: {
-      obstacleSpeed: 2.5,
-      spawnInterval: 1800,
+      obstacleSpeed: 1.8,
+      spawnInterval: 2400,
       obstacleTypes: ['low', 'high'],
       obstacleCount: 2,
       movePattern: 'straight',
-      lives: 4,
-      targetTime: 45,
-      scoreMultiplier: 1.3
+      lives: 5,
+      targetTime: 35,
+      scoreMultiplier: 1.2
     },
     stars: {
-      3: { time: 45, score: 800 },
-      2: { time: 30, score: 500 },
-      1: { time: 20, score: 250 }
+      3: { time: 35, score: 500 },
+      2: { time: 22, score: 300 },
+      1: { time: 12, score: 150 }
     },
     unlocked: false
   },
@@ -465,26 +482,27 @@ export const OBSTACLE_DODGE_LEVELS = [
  * 难度递增：姿势复杂度、匹配精度、时间限制、姿势数量
  */
 export const POSE_MIMICRY_LEVELS = [
+  // 幼童友好：宽松匹配、少量姿势、易拿星
   {
     id: 'pose-1',
     gameType: 3,
     subLevel: 1,
-    name: '简单姿势',
-    description: '基础姿势，宽松匹配',
+    name: '学做小动作',
+    description: '跟着画面做动作，像就可以啦～',
     difficulty: 'easy',
     icon: '🦸',
     config: {
-      poseComplexity: 'simple',    // 简单姿势
-      matchThreshold: 0.7,         // 匹配阈值（70%）
-      poseCount: 3,                // 需要模仿的姿势数
-      timeLimit: null,             // 无时间限制
+      poseComplexity: 'simple',
+      matchThreshold: 0.62,
+      poseCount: 3,
+      timeLimit: null,
       scoreMultiplier: 1.0,
-      lives: 5
+      lives: 6
     },
     stars: {
-      3: { accuracy: 0.85, time: null },
-      2: { accuracy: 0.75, time: null },
-      1: { accuracy: 0.65, time: null }
+      3: { accuracy: 0.7, time: null },
+      2: { accuracy: 0.55, time: null },
+      1: { accuracy: 0.4, time: null }
     },
     unlocked: true
   },
@@ -492,22 +510,22 @@ export const POSE_MIMICRY_LEVELS = [
     id: 'pose-2',
     gameType: 3,
     subLevel: 2,
-    name: '标准姿势',
-    description: '中等难度姿势',
+    name: '多学几个动作',
+    description: '再多做几个姿势，慢慢来～',
     difficulty: 'easy',
     icon: '🦸',
     config: {
       poseComplexity: 'medium',
-      matchThreshold: 0.75,
-      poseCount: 5,
+      matchThreshold: 0.68,
+      poseCount: 4,
       timeLimit: null,
-      scoreMultiplier: 1.3,
-      lives: 4
+      scoreMultiplier: 1.2,
+      lives: 5
     },
     stars: {
-      3: { accuracy: 0.9, time: null },
-      2: { accuracy: 0.8, time: null },
-      1: { accuracy: 0.7, time: null }
+      3: { accuracy: 0.75, time: null },
+      2: { accuracy: 0.6, time: null },
+      1: { accuracy: 0.45, time: null }
     },
     unlocked: false
   },
@@ -610,28 +628,29 @@ export const POSE_MIMICRY_LEVELS = [
  * 难度递增：数字范围、速度、数量
  */
 export const NUMBER_RECOGNITION_LEVELS = [
+  // 幼童友好：少量数字、大气球、慢速、易拿星
   {
     id: 'number-1',
     gameType: 4,
     subLevel: 1,
-    name: '认识数字1-3',
-    description: '学习基础数字',
+    name: '1、2、3 拍拍',
+    description: '只拍写着 1、2、3 的气球，一起来～',
     difficulty: 'easy',
     icon: '🔢',
     config: {
-      spawnInterval: 3000,
-      balloonSpeed: 1.5,
-      balloonRadius: [50, 60],
+      spawnInterval: 3800,
+      balloonSpeed: 1.0,
+      balloonRadius: [55, 68],
       numbers: [1, 2, 3],
-      targetCount: 8,
+      targetCount: 5,
       timeLimit: null,
-      lives: 5,
+      lives: 6,
       scoreMultiplier: 1.0
     },
     stars: {
-      3: { score: 800, time: null, accuracy: 0.9 },
-      2: { score: 500, time: null, accuracy: 0.7 },
-      1: { score: 250, time: null, accuracy: 0.5 }
+      3: { score: 320, time: null, accuracy: 0.75 },
+      2: { score: 200, time: null, accuracy: 0.55 },
+      1: { score: 100, time: null, accuracy: 0.35 }
     },
     unlocked: true
   },
@@ -639,24 +658,24 @@ export const NUMBER_RECOGNITION_LEVELS = [
     id: 'number-2',
     gameType: 4,
     subLevel: 2,
-    name: '数字1-5',
-    description: '扩展数字范围',
+    name: '1 到 5 都来玩',
+    description: '拍 1、2、3、4、5 的气球，加油～',
     difficulty: 'easy',
     icon: '🔢',
     config: {
-      spawnInterval: 2500,
-      balloonSpeed: 2.0,
-      balloonRadius: [45, 55],
+      spawnInterval: 3200,
+      balloonSpeed: 1.3,
+      balloonRadius: [50, 62],
       numbers: [1, 2, 3, 4, 5],
-      targetCount: 12,
+      targetCount: 8,
       timeLimit: null,
-      lives: 4,
-      scoreMultiplier: 1.2
+      lives: 5,
+      scoreMultiplier: 1.1
     },
     stars: {
-      3: { score: 1200, time: null, accuracy: 0.85 },
-      2: { score: 750, time: null, accuracy: 0.7 },
-      1: { score: 400, time: null, accuracy: 0.5 }
+      3: { score: 480, time: null, accuracy: 0.7 },
+      2: { score: 300, time: null, accuracy: 0.5 },
+      1: { score: 150, time: null, accuracy: 0.35 }
     },
     unlocked: false
   },

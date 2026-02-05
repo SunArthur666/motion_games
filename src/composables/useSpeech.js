@@ -261,7 +261,7 @@ export function useSpeech() {
   }
 
   /**
-   * 错误答案音效
+   * 错误答案音效（幼童友好：柔和、不刺耳、无惩罚感）
    */
   function playWrongSound(context) {
     const oscillator = context.createOscillator()
@@ -270,15 +270,15 @@ export function useSpeech() {
     oscillator.connect(gainNode)
     gainNode.connect(context.destination)
 
-    oscillator.type = 'sawtooth'
-    oscillator.frequency.setValueAtTime(200, context.currentTime)
-    oscillator.frequency.linearRampToValueAtTime(100, context.currentTime + 0.3)
+    oscillator.type = 'sine'
+    oscillator.frequency.setValueAtTime(320, context.currentTime)
+    oscillator.frequency.linearRampToValueAtTime(280, context.currentTime + 0.25)
 
-    gainNode.gain.setValueAtTime(0.2, context.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3)
+    gainNode.gain.setValueAtTime(0.06, context.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.25)
 
     oscillator.start(context.currentTime)
-    oscillator.stop(context.currentTime + 0.3)
+    oscillator.stop(context.currentTime + 0.25)
   }
 
   /**

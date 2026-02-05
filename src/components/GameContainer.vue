@@ -87,6 +87,7 @@
       @collision="handleCollision"
       @prompt="handlePrompt"
       @level-complete="handleLevelComplete"
+      @level-started="handleLevelStarted"
       @encouragement="handleEncouragement"
       @powerup="handlePowerUp"
     />
@@ -123,6 +124,7 @@
       @collision="handleCollision"
       @prompt="handlePrompt"
       @level-complete="handleLevelComplete"
+      @level-started="handleLevelStarted"
       @encouragement="handleEncouragement"
     />
 
@@ -366,6 +368,16 @@ function handleCollision(event) {
 // 处理提示更新（关卡一）
 function handlePrompt(prompt) {
   currentPrompt.value = prompt
+}
+
+// 关卡开始（显示欢迎语，适合幼童）
+function handleLevelStarted() {
+  const message = gameStore.getEncouragement('welcome')
+  if (message) {
+    encouragementMessage.value = message
+    encouragementType.value = 'welcome'
+    if (encouragementToast.value) encouragementToast.value.show()
+  }
 }
 
 // 处理鼓励反馈

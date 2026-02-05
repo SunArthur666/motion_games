@@ -28,7 +28,7 @@ const visible = ref(false)
 let timeoutId = null
 
 const icon = computed(() => {
-  const icons = { correct: '🎉', wrong: '💪', streak: '🔥', complete: '🏆', powerup: '✨' }
+  const icons = { correct: '🎉', wrong: '💪', streak: '🔥', complete: '🏆', powerup: '✨', welcome: '👋' }
   return icons[props.type] || '🎉'
 })
 
@@ -62,7 +62,8 @@ defineExpose({ show, hide })
 <style scoped>
 .encouragement-toast { position: fixed; left: 50%; transform: translateX(-50%); z-index: 3000; pointer-events: none; }
 .encouragement-content { display: flex; align-items: center; gap: 15px; padding: 20px 40px; background: rgba(0, 0, 0, 0.85); border-radius: 20px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); }
-.encouragement-toast.correct .encouragement-content { background: linear-gradient(135deg, rgba(74, 222, 128, 0.9), rgba(34, 197, 94, 0.9)); color: #fff; }
+.encouragement-toast.correct .encouragement-content,
+.encouragement-toast.welcome .encouragement-content { background: linear-gradient(135deg, rgba(74, 222, 128, 0.9), rgba(34, 197, 94, 0.9)); color: #fff; }
 .encouragement-toast.wrong .encouragement-content { background: linear-gradient(135deg, rgba(100, 200, 255, 0.9), rgba(59, 130, 246, 0.9)); color: #fff; }
 .encouragement-toast.streak .encouragement-content { background: linear-gradient(135deg, rgba(255, 215, 0, 0.9), rgba(255, 165, 0, 0.9)); color: #000; }
 .encouragement-toast.complete .encouragement-content { background: linear-gradient(135deg, rgba(168, 85, 247, 0.9), rgba(139, 92, 246, 0.9)); color: #fff; }

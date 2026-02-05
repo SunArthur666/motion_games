@@ -28,7 +28,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['collision', 'prompt', 'level-complete', 'encouragement', 'powerup'])
+const emit = defineEmits(['collision', 'prompt', 'level-complete', 'level-started', 'encouragement', 'powerup'])
 
 const gameStore = useGameStore()
 
@@ -74,6 +74,7 @@ const isFrenzyMode = ref(false)
 const targetCount = ref(0)        // 目标完成数量
 const correctCount = ref(0)       // 正确数量
 const wrongCount = ref(0)         // 错误数量
+const hasHadFirstSuccess = ref(false)  // 是否已出现过首次成功（用于幼童鼓励）
 const startTime = ref(null)       // 开始时间
 const elapsedTime = ref(0)        // 已用时间
 
@@ -110,9 +111,11 @@ function startGame() {
   targetCount.value = gameConfig.value.targetCount || 20
   correctCount.value = 0
   wrongCount.value = 0
+  hasHadFirstSuccess.value = false
   startTime.value = Date.now()
   elapsedTime.value = 0
   
+  emit('level-started')
   // 根据配置选择初始颜色
   const availableColors = gameConfig.value.colors || ['red', 'blue', 'green', 'yellow']
   currentTargetColor.value = availableColors[0]
@@ -451,8 +454,14 @@ function checkGameCollisions() {
             })
             playSound('correct')
 
-            // 发送鼓励反馈
-            sendEncouragement('correct', streak.value)
+            // 首次成功时用幼童向鼓励语，之后用普通正确鼓励
+            if (!hasHadFirstSuccess.value) {
+              hasHadFirstSuccess.value = true
+              const firstMsg = gameStore.getEncouragement('firstSuccess')
+              if (firstMsg) emit('encouragement', { type: 'correct', message: firstMsg, streak: streak.value })
+            } else {
+              sendEncouragement('correct', streak.value)
+            }
 
             // 随机生成道具
             if (Math.random() < powerUpSpawnChance * (1 + streak.value * 0.1)) {
